@@ -10,7 +10,9 @@ export default function Home() {
       <h1 className="text-5xl">Balota</h1>
       <p className="opacity-50 mb-2">Helping voters, one ballot at a time</p>
       <div className="flex flex-col items-center gap-2">
-        <Button className="w-[13rem] rounded-xl bg-[#1357BE] !py-1">Generate Ballot</Button>
+        <Link href="/balota">
+          <Button className="w-[13rem] rounded-xl bg-[#1357BE] !py-1">Generate Ballot</Button>
+        </Link>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button className="w-[13rem] rounded-xl bg-white text-black !py-1 shadow-md focus:bg-white">View Candidates</Button>
