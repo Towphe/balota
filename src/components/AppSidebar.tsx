@@ -1,10 +1,8 @@
 import {
     Sidebar,
     SidebarContent,
-    SidebarFooter,
     SidebarGroup,
     SidebarGroupContent,
-    SidebarGroupLabel,
     SidebarHeader,
     SidebarMenu,
     SidebarMenuButton,
@@ -17,9 +15,9 @@ import Link from "next/link"
 
     return (
       <Sidebar>
+        <SidebarHeader  className="!mt-8 !py-2">Balota</SidebarHeader>
         <SidebarContent>
             <SidebarGroup>
-                <SidebarGroupLabel className="!mt-8 !py-2">Balota</SidebarGroupLabel>
                 <SidebarGroupContent>
                     <SidebarMenu>
                         <SidebarMenuItem className="!py-2">

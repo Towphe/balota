@@ -6,13 +6,11 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/s
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { AppSidebar } from "@/components/AppSidebar";
-import Image from "next/image";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
