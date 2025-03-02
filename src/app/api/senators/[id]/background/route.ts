@@ -4,6 +4,8 @@ import { openai } from "@/lib/openAi";
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+export const maxDuration = 30;
+
 export async function GET(request:Request, {params}:{params: Promise<{id:string}>}) {
     const id = (await params).id;
 
