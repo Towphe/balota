@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearchPostgres"]
 }
 
 datasource db {
@@ -56,4 +57,5 @@ model senator {
   ballot_name   String  @db.VarChar(255)
   sex           String  @db.Char(1)
   partylist     String? @db.VarChar(255)
+  background    Json?
 }
