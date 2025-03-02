@@ -11,6 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { AppSidebar } from "@/components/AppSidebar";
+import { Suspense } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -68,7 +69,9 @@ export default function RootLayout({
             </header>
             <main>
               {/* main */}
-              {children}
+              <Suspense>
+                {children}
+              </Suspense>
             </main>
             <footer className="px-4 pb-3">
               {/* footer */}
