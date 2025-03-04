@@ -58,7 +58,7 @@ export async function GET(request:NextRequest) {
         skip: count*(page-1),
         take: count,
         where: {
-            ...(name && {ballot_name: { contains: name }}),
+            ...(name && {ballot_name: { contains: name.toUpperCase() }}),
         },
         orderBy: {
             ...(sortBy === 'ballot_name' && {ballot_name: order}),
@@ -70,7 +70,7 @@ export async function GET(request:NextRequest) {
     
     const total = await prisma.senator.count({
         where: {
-            ...(name && {ballot_name: { contains: name }}),
+            ...(name && {ballot_name: { contains: name.toUpperCase() }}),
         },
         orderBy: {
             ...(sortBy === 'ballot_name' && {ballot_name: order}),
