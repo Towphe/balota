@@ -7,7 +7,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Senator, SenatorsPayload } from "@/models/senator";
 import {z} from "zod";
 import {zodResolver} from "@hookform/resolvers/zod"
 import {useForm} from "react-hook-form";
