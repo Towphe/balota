@@ -25,7 +25,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Balota",
-  description: "Balota generator for the 2025 Midterm Philippine Elections",
+  description: "Balota generator for the 2025 Midterm Philippine Elections"
 };
 
 export default function RootLayout({
@@ -38,7 +38,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable}`}
       >
-        <SidebarProvider>
+        <SidebarProvider defaultOpen={false}>
           <AppSidebar />
           <SidebarInset>
           <div className="grid grid-rows-[auto_1fr_auto] min-h-screen">
