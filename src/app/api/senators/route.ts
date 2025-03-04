@@ -54,26 +54,11 @@ export async function GET(request:NextRequest) {
             break;
     }
 
-    let splittedName = "";
-
-    if (name !== undefined && name !== null){
-        const splittedNames = name.split(" ");
-        for (let i=0;i<splittedNames.length;i++) {
-            if (i === splittedNames.length - 1) {
-                // do not append ampersand
-                splittedName = "".concat(splittedName, `${splittedNames[i]}`)
-            } else {
-                splittedName = "".concat(splittedName, `${splittedNames[i]} & `)
-            }
-        }
-        splittedName = splittedName.trimEnd();
-    }
-
     senators = await prisma.senator.findMany({
         skip: count*(page-1),
         take: count,
         where: {
-            ...(name && {ballot_name: { search: splittedName }}),
+            ...(name && {ballot_name: { contains: name }}),
         },
         orderBy: {
             ...(sortBy === 'ballot_name' && {ballot_name: order}),
@@ -85,7 +70,7 @@ export async function GET(request:NextRequest) {
     
     const total = await prisma.senator.count({
         where: {
-            ...(name && {ballot_name: { search: splittedName }}),
+            ...(name && {ballot_name: { contains: name }}),
         },
         orderBy: {
             ...(sortBy === 'ballot_name' && {ballot_name: order}),
