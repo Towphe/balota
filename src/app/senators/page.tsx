@@ -52,6 +52,7 @@ export default function Page() {
     setSortBy(values.sortBy);
     setOrder(values.order);
     setName(values.name ?? null);
+    toggleIsListRendered(false);
   }
 
   const retrieveSenators = async () => {
