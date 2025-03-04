@@ -16,6 +16,7 @@ import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination";
 import { CandidateDescription } from "@/models/candidateDescription";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 export default function Page() {
   const searchParams = useSearchParams();
@@ -31,6 +32,8 @@ export default function Page() {
   const [senators, setSenators] = useState<Senator[]>([]);
   const [totalSenators, setTotalSenators] = useState<number>(0);
   const [senatorBackground, setSenatorBackground] = useState<CandidateDescription|null>(null);
+  const [isListRendered, toggleIsListRendered] = useState<boolean>(false);
+  const [isSenatorBackgroundRendered, setIsSenatorBackgroundRendered] = useState<boolean>(false);
 
   const filterForm = useForm<z.infer<typeof senatorFilterSchema>>({
     resolver: zodResolver(senatorFilterSchema),
@@ -56,6 +59,7 @@ export default function Page() {
     const data:SenatorsPayload = await req.json();
     setSenators(data.senators);
     setTotalSenators(data.total);
+    toggleIsListRendered(true);
   }
 
   const retrieveSenatorBackground = async (id:string) => {
@@ -64,12 +68,18 @@ export default function Page() {
     const req = await fetch(`/api/senators/${id}/background`);
     
     if (!req.ok) {
+      // handle 
+      setIsSenatorBackgroundRendered(true);
       return;
     }
 
     const data:CandidateDescription = await req.json();
 
+    console.log(data)
+
     setSenatorBackground(data);
+
+    setIsSenatorBackgroundRendered(true);
     return;
   }
 
@@ -154,66 +164,102 @@ export default function Page() {
               </div>
             </form>
           </Form>
-          <Table className="mt-4">
-            <TableHeader>
-              <TableRow>
-                <TableHead>Ballot #</TableHead>
-                <TableHead>Name on Ballot</TableHead>
-                <TableHead className="hidden md:block pt-3">Partylist</TableHead>
-                <TableHead></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {
-                senators.map((senator) => (
-                  <TableRow key={senator.id}>
-                    <TableCell>{senator.ballot_number}</TableCell>
-                    <Dialog>
-                      <DialogTrigger onClick={() => retrieveSenatorBackground(senator.id)} asChild>
-                        <TableCell  className="text-blue-500 hover:cursor-pointer">{senator.ballot_name}</TableCell>
-                      </DialogTrigger>
-                      <DialogContent className="w-11/12">
-                        <DialogTitle>{senator.ballot_name} - #{senator.ballot_number}</DialogTitle>
-                        <DialogDescription>{senator.partylist}</DialogDescription>
-                        {/* <p className="text-xs opacity-60"><span className="font-bold">Coming soon:</span> AI-Powered Candidate Profiling</p> */}
-                        <div className="flex flex-col items-center gap-1.5 text-[0.85rem] w-full">
-                          <h3 className="font-semibold opacity-90 w-full">Background</h3>
+          {
+                !isListRendered ? 
+                <div className="flex flex-col items-center justify-center w-full h-[30vh]">
+                  <LoadingSpinner className="size-12"></LoadingSpinner>
+                </div> :
+                <>
+                <Table className="mt-4">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Ballot #</TableHead>
+                  <TableHead>Name on Ballot</TableHead>
+                  <TableHead className="hidden md:block pt-3">Partylist</TableHead>
+                  <TableHead></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {
+                  senators.map((senator) => (
+                    <TableRow key={senator.id}>
+                      <TableCell>{senator.ballot_number}</TableCell>
+                      <Dialog onOpenChange={(open) => {
+                        if (!open) {
+                          setIsSenatorBackgroundRendered(false);
+                        }
+                      }}>
+                        <DialogTrigger onClick={() => retrieveSenatorBackground(senator.id)} asChild>
+                          <TableCell  className="text-blue-500 hover:cursor-pointer">{senator.ballot_name}</TableCell>
+                        </DialogTrigger>
+                        <DialogContent className="w-11/12">
+                          <DialogTitle>{senator.ballot_name} - #{senator.ballot_number}</DialogTitle>
+                          <DialogDescription>{senator.partylist}</DialogDescription>
                           {
-                            senatorBackground && (
-                              senatorBackground.descriptions.map((description,i) => (
-                                <p key={i}>{description}</p>
-                              ))
-                            )
+                            !isSenatorBackgroundRendered ?
+                              <div className="flex flex-col items-center justify-center w-full h-[10vh]">
+                                <LoadingSpinner className="size-12"></LoadingSpinner>
+                              </div> :
+                              (
+                              <>
+                              <div className="flex flex-col items-center gap-1.5 text-[0.85rem] w-full">
+                                <h3 className="font-semibold opacity-90 w-full">Background</h3>
+                                {
+                                  senatorBackground && (
+                                    <p>{senatorBackground.summary}</p>
+                                  )
+                                }
+                                {
+                                  !senatorBackground && (
+                                    <p>No relevant information found.</p>
+                                  )
+                                }
+                              </div>
+                              <Accordion type="single" collapsible className="w-full overflow-x-hidden">
+                              <AccordionItem value="sources">
+                                <AccordionTrigger>Sources</AccordionTrigger>
+                                <AccordionContent className="flex flex-col gap-1.5 !w-max-full">
+                                {
+                                  !isSenatorBackgroundRendered ?
+                                  <div className="flex flex-col items-center justify-center py-6">
+                                    <LoadingSpinner className="size-12"></LoadingSpinner>
+                                  </div> :
+                                  (<>
+                                    {
+                                    senatorBackground && (
+                                      senatorBackground.sources.map((source,i) => (
+                                        <p key={i}>{source}</p>
+                                      ))
+                                    )
+                                    }
+                                    {
+                                      !senatorBackground && (
+                                        <p>No relevant sources found.</p>
+                                      )
+                                    }
+                                  </>)
+                                }
+                                
+                                      </AccordionContent>
+                                    </AccordionItem>
+                                </Accordion>
+                              </>
+                              )
                           }
-                        </div>
-                        <Accordion type="single" collapsible className="w-full">
-                            <AccordionItem value="sources">
-                              <AccordionTrigger>Sources</AccordionTrigger>
-                              <AccordionContent className="flex flex-col gap-1.5">
-                              {
-                                senatorBackground && (
-                                  senatorBackground.sources.map((source,i) => (
-                                    <p key={i}>{source}</p>
-                                  ))
-                                )
-                              }
-                              </AccordionContent>
-                            </AccordionItem>
-                        </Accordion>
-                        <Button className="!rounded-xl !bg-yellow-500 hover:opacity-80 hover:cursor-pointer">Iboto!</Button>
-                        {/* generate description using ai */}
-                      </DialogContent>
-                    </Dialog>
-                    <TableCell className="hidden md:flex pt-4">{senator.partylist}</TableCell>
-                    <TableCell>
-                      <Button className="!bg-yellow-500 !rounded-xl">Iboto!</Button>
-                    </TableCell>
-                  </TableRow>
-                ))
-              }
-            </TableBody>
-          </Table>
-          <Pagination>
+                          <Button className="!rounded-xl !bg-yellow-500 hover:opacity-80 hover:cursor-pointer">Iboto!</Button>
+                          {/* generate description using ai */}
+                        </DialogContent>
+                      </Dialog>
+                      <TableCell className="hidden md:flex pt-4">{senator.partylist}</TableCell>
+                      <TableCell>
+                        <Button className="!bg-yellow-500 !rounded-xl">Iboto!</Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                }
+              </TableBody>
+            </Table>
+            <Pagination>
             <PaginationContent>
               <PaginationItem>
                 <PaginationLink href={`/senators?p=${page === 1 ? 1 : page-1}`} isActive={page === 1}>
@@ -240,6 +286,10 @@ export default function Page() {
               
             </PaginationContent>
           </Pagination>
+            </>
+          }
+          
+          
         </div>
     </div>);
 }

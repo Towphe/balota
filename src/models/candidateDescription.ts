@@ -1,6 +1,6 @@
 
 
 export interface CandidateDescription {
-    descriptions: string[];
+    summary: string;
     sources: string[];
 }

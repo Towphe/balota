@@ -1,4 +1,5 @@
 
+import { Prisma } from "@prisma/client";
 import prisma from "../../../../../../lib/prisma";
 import { openai } from "@/lib/openAi";
 
@@ -48,14 +49,24 @@ export async function GET(request:Request, {params}:{params: Promise<{id:string}
         model: "gpt-4o-mini",
         messages: [
             {
-                role:"assistant",
-                content: `Output a brief background about 2025 Philippine Elections Senatorial Candidate ${senator.ballot_name}. Highlight past political experience and scandals, if any. Pass each paragraph to a flat "descriptions" JSON array. Provide sources to a flat "sources" JSON array as well. Final output should be in JSON without header. If none is found, simply return string "None"​​`
+                role:"user",
+                content: `
+                Provide a concise background summary on ${senator.ballot_name}, who is running for Senator in the 2025 Philippine Election. in JSON format. 
+                Include:
+                  - "summary": A brief, 150-word overview listing their political experience and highlighting most known scandals (if any). Do not use flowery language. Do not make inferences about Philippines politics based on them. Be specific on their political experience and scandals.
+                - "sources": A list of up-to-date and credible sources (in complete URL) for further reading.
+                Ensure the response is in JSON with no extra commentary and no "\`\`\`json" on top. If no information is found, simply return a blank string.
+                ​​`
             }
         ],
         store: false
     });
 
+    
+
     const description = gptQuery.choices[0].message.content;
+
+    // console.log(description)
 
     if (description === "None" || description === null) {
         // no sufficient information found
@@ -67,39 +78,35 @@ export async function GET(request:Request, {params}:{params: Promise<{id:string}
 
     try {
         const parsedBackground = JSON.parse(description);
-        console.log(parsedBackground.sources.length === 0)
+
+        console.log(parsedBackground)
+        
         if (parsedBackground.sources.length === 0) {
             return Response.json("Trouble retrieving candidate info. Try again later...", {
                 status: 400
             });
         }
 
-        // save parsedBackground to db
+        console.log(parsedBackground);
+
+
         await prisma.senator.update({
             where: {
                 id: senator.id
             },
             data: {
                 background: {
-                    descriptions: [
-                      "Abby Binay is a political figure in the Philippines affiliated with the Nationalist People's Coalition (NPC). She is set to run in the 2025 Philippine Senate elections, continuing her family’s political legacy.",
-                      "Abby Binay previously served as the mayor of Makati City and as a councilor. Her tenure as mayor was marked by initiatives aimed at improving social services and community welfare in the city.",
-                      "While she has maintained a relatively low profile compared to other political figures, Abby Binay has faced some controversies linked to her family's political standing, particularly regarding allegations of corruption involving her father, former Vice President Jejomar Binay, during his tenure in local government."
-                    ],
-                    sources: [
-                      "https://news.abs-cbn.com/news/10/18/21/abby-binay-expected-to-run-for-senate",
-                      "https://www.philstar.com/headlines/2022/06/30/2190623/abby-binay-sworn-makati-city-mayor",
-                      "https://www.rappler.com/nation/263838-jejomar-binay-abby-binay-graft-case-update/"
-                    ]
-                  }
+                    summary: parsedBackground.summary,
+                    sources: [...parsedBackground.sources] as Prisma.JsonArray
+                },
             }
-        });
+        })
 
         return Response.json(parsedBackground, {
             status:200
         });
     } catch (err) {
-        // console.log(err);
+        console.log(err);
         return Response.json(err, {
             status: 400
         });
