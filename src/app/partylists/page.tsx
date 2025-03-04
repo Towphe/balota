@@ -18,6 +18,7 @@ import { CandidateDescription } from "@/models/candidateDescription";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { Partylist, PartylistsPayload } from "@/models/partylist";
+import { db } from "../../../db/db.model";
 
 export default function Page() {
   const searchParams = useSearchParams();
@@ -35,7 +36,9 @@ export default function Page() {
   const [partylistBackground, setPartylistBackground] = useState<CandidateDescription|null>(null);
   const [isListRendered, toggleIsListRendered] = useState<boolean>(false);
   const [isPartylistBackgroundRendered, setIsPartylistBackgroundRendered] = useState<boolean>(false);
-
+  const [selectedPartylist, setSelectedPartylist] = useState<Partylist|null>(null);
+  const [isConfirmPartylistOpen, setIsConfirmPartylistOpen] = useState<boolean>(false);
+  const [newlySelectedPartylist, setNewlySelectedPartylist] = useState<Partylist|null>(null);
   const filterForm = useForm<z.infer<typeof senatorFilterSchema>>({
     resolver: zodResolver(senatorFilterSchema),
     defaultValues: {
@@ -83,9 +86,67 @@ export default function Page() {
     return;
   }
 
+  const setPartylist = async (partylist:Partylist) => {
+    // check if there's already a partylist
+    const count = await db.partylists.count();
+    
+    if (count > 0) {
+      // partylist already selected
+      // render notification that says you've already selected your partylist
+      const instance = await db.partylists.limit(1).first();
+      setNewlySelectedPartylist(partylist);
+      setIsConfirmPartylistOpen(true);
+      return;
+    }
+
+    setSelectedPartylist(partylist);
+    db.partylists.add(partylist, partylist.id);
+  }
+
+  const unsetPartylist = async () => {
+    // check if there's already a partylist
+    const count = await db.partylists.count();
+
+    if (!selectedPartylist) {
+      return;
+    }
+    
+    if (count === 0) {
+      // partylist already deleted
+      return;
+    }
+
+    db.partylists.delete(selectedPartylist.id);
+    setSelectedPartylist(null);
+  }
+
+  const replacePartylist = async () => {
+    if (!newlySelectedPartylist) {
+      return;
+    }
+    
+    // unset partylist
+    await unsetPartylist();
+
+    // set new partylist
+    setPartylist(newlySelectedPartylist);
+
+    setNewlySelectedPartylist(null);
+    setIsConfirmPartylistOpen(false);
+  }
+
   useEffect(() => {
     retrievePartylists();
   }, [page, order, sortBy, order, name])
+
+  useEffect(() => {
+    const retrieveSavedPartylist = async () => {
+      const partylistSelected = await db.partylists.limit(1).first();
+      setSelectedPartylist(partylistSelected ?? null);
+    }
+
+    retrieveSavedPartylist();
+  }, []);
 
   return (
     <div className="h-full flex flex-col items-center justify-center py-12">
@@ -244,12 +305,20 @@ export default function Page() {
                               </>
                               )
                           }
-                          <Button className="!rounded-xl !bg-yellow-500 hover:opacity-80 hover:cursor-pointer">Iboto!</Button>
+                          {
+                            partylist.id !== selectedPartylist?.id ?
+                            <Button onClick={() => setPartylist(partylist)} className="!rounded-xl !bg-yellow-500 hover:opacity-80 hover:cursor-pointer">Iboto!</Button> :
+                            <Button onClick={() => unsetPartylist()} className="!rounded-xl !bg-white !border-red-600 border-2 !text-red-600 hover:opacity-80 hover:cursor-pointer">Remove vote</Button>
+                          }
+                          
                           {/* generate description using ai */}
                         </DialogContent>
                       </Dialog>
                       <TableCell>
-                        <Button className="!bg-yellow-500 !rounded-xl">Iboto!</Button>
+                        {
+                          partylist.id !== selectedPartylist?.id ? <Button onClick={() => setPartylist(partylist)} className="!bg-yellow-500 !rounded-xl px-6">Iboto!</Button> :
+                          <Button onClick={() => unsetPartylist()} className="!rounded-xl !bg-white !border-red-600 border-2 !text-red-600 hover:opacity-80 hover:cursor-pointer">Remove</Button>
+                        }
                       </TableCell>
                     </TableRow>
                   ))
@@ -285,7 +354,18 @@ export default function Page() {
           </Pagination>
             </>
           }
-          
+          <Dialog open={isConfirmPartylistOpen} onOpenChange={(open) => {
+            if (!open) setIsConfirmPartylistOpen(false);
+          }}>
+            <DialogContent  className="w-11/12">
+              <DialogTitle>Change Partylist?</DialogTitle>
+              <DialogDescription>You previously selected {selectedPartylist?.ballot_name}</DialogDescription>
+              <div className="flex flex-col gap-1">
+                <Button onClick={() => replacePartylist()} className="!rounded-xl !bg-yellow-500 hover:opacity-80 hover:cursor-pointer">Change Vote</Button>
+                <Button onClick={() => setIsConfirmPartylistOpen(false)} className="!rounded-xl text-white bg-gray-600 hover:opacity-80 hover:cursor-pointer">Cancel</Button>
+              </div>
+            </DialogContent>
+          </Dialog>
           
         </div>
     </div>);
