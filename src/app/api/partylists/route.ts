@@ -49,26 +49,11 @@ export async function GET(request:NextRequest) {
             break;
     }
 
-    let splittedName = "";
-
-    if (name !== undefined && name !== null){
-        const splittedNames = name.split(" ");
-        for (let i=0;i<splittedNames.length;i++) {
-            if (i === splittedNames.length - 1) {
-                // do not append ampersand
-                splittedName = "".concat(splittedName, `${splittedNames[i]}`)
-            } else {
-                splittedName = "".concat(splittedName, `${splittedNames[i]} & `)
-            }
-        }
-        splittedName = splittedName.trimEnd();
-    }
-
     partylists = await prisma.partylist.findMany({
         skip: count*(page-1),
         take: count,
         where: {
-            ...(name && {ballot_name: { search: splittedName }}),
+            ...(name && {ballot_name: { contains: name }}),
         },
         orderBy: {
             ...(sortBy === 'ballot_name' && {ballot_name: order}),
@@ -77,5 +62,19 @@ export async function GET(request:NextRequest) {
         }
     });
 
-    return Response.json(partylists);
+    const total = await prisma.partylist.count({
+        where: {
+            ...(name && {ballot_name: { contains: name }}),
+        },
+        orderBy: {
+            ...(sortBy === 'ballot_name' && {ballot_name: order}),
+            ...(sortBy === 'ballot_number' && {ballot_number: order}),
+            ...(sortBy === 'name' && {name: order}),
+        }
+    });
+
+    return Response.json({
+        partylists: partylists,
+        total: total
+    });
 }
