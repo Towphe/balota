@@ -17,6 +17,8 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@
 import { CandidateDescription } from "@/models/candidateDescription";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { db } from "../../../db/db.model";
+import Link from "next/link";
 
 export default function Page() {
   const searchParams = useSearchParams();
@@ -34,6 +36,8 @@ export default function Page() {
   const [senatorBackground, setSenatorBackground] = useState<CandidateDescription|null>(null);
   const [isListRendered, toggleIsListRendered] = useState<boolean>(false);
   const [isSenatorBackgroundRendered, setIsSenatorBackgroundRendered] = useState<boolean>(false);
+  const [selectedSenators, setSelectedSenators] = useState<Senator[]>([]);
+  const [isSelectedSenatorsModalOpen, setSelectedSenatorsModalOpen] = useState<boolean>(false);
 
   const filterForm = useForm<z.infer<typeof senatorFilterSchema>>({
     resolver: zodResolver(senatorFilterSchema),
@@ -76,17 +80,54 @@ export default function Page() {
 
     const data:CandidateDescription = await req.json();
 
-    console.log(data)
-
     setSenatorBackground(data);
 
     setIsSenatorBackgroundRendered(true);
     return;
   }
 
+  const addSenator = async (senator:Senator) => {
+    // check if there's already a partylist
+    const count = await db.senators.count();
+      
+    if (count === 12) {
+      // senator limit reached
+      // render notification that says you've already reached max partylist
+      setSelectedSenatorsModalOpen(true);
+      return;
+    }
+  
+    setSelectedSenators([...selectedSenators, senator]);
+    db.senators.add(senator, senator.id);
+  }
+
+  const removeSenator = async (senator:Senator) => {
+    // check number of senators
+    const count = await db.senators.count();
+      
+    if (count === 0) {
+      // no senators in list
+      // render notification that says you've already reached max partylist
+      // or just show modal showing your current choice, and option to remove any
+      return;
+    }
+  
+    setSelectedSenators(selectedSenators.filter((sn) => sn.id !== senator.id));
+    db.senators.delete(senator.id);
+  }
+
   useEffect(() => {
     retrieveSenators();
   }, [page, order, sortBy, order, name])
+
+  useEffect(() => {
+      const retrieveSavedSenators = async () => {
+        const senators = await db.senators.limit(12).toArray();
+        setSelectedSenators(senators);
+      }
+  
+      retrieveSavedSenators();
+    }, []);
 
   return (
     <div className="h-full flex flex-col items-center justify-center py-12">
@@ -240,20 +281,27 @@ export default function Page() {
                                     }
                                   </>)
                                 }
-                                
                                       </AccordionContent>
                                     </AccordionItem>
                                 </Accordion>
                               </>
                               )
                           }
-                          <Button className="!rounded-xl !bg-yellow-500 hover:opacity-80 hover:cursor-pointer">Iboto!</Button>
+                          {
+                            selectedSenators.filter((sn) => sn.id == senator.id).length === 0 ?
+                            <Button onClick={() => addSenator(senator)} className="!rounded-xl !bg-yellow-500 hover:opacity-80 hover:cursor-pointer">Iboto!</Button> :
+                            <Button onClick={() => removeSenator(senator)} className="!rounded-xl !bg-white !border-red-600 border-2 !text-red-600 hover:opacity-80 hover:cursor-pointer">Remove vote</Button>
+                          }
                           {/* generate description using ai */}
                         </DialogContent>
                       </Dialog>
                       <TableCell className="hidden md:flex pt-4">{senator.partylist}</TableCell>
                       <TableCell>
-                        <Button className="!bg-yellow-500 !rounded-xl">Iboto!</Button>
+                        {
+                          selectedSenators.filter((sn) => sn.id == senator.id).length === 0 ?
+                          <Button onClick={() => addSenator(senator)} className="!bg-yellow-500 !rounded-xl px-6">Iboto!</Button> :
+                          <Button onClick={() => removeSenator(senator)} className="!rounded-xl !bg-white !border-red-600 border-2 !text-red-600 hover:opacity-80 hover:cursor-pointer">Remove</Button>
+                        }
                       </TableCell>
                     </TableRow>
                   ))
@@ -287,10 +335,47 @@ export default function Page() {
               
             </PaginationContent>
           </Pagination>
-            </>
+          {
+            selectedSenators.length > 0 && (
+              <div className="fixed bottom-4 left-4 md:left-auto mx-auto w-11/12 md:w-4/5 lg:w-1/2 xl:w-2/5 2xl:w-1/3 bg-yellow-500 py-2 px-4 text-white flex justify-between items-center !shadow-xl !rounded-xl z-20">
+                <p className="text-lg">Selected {selectedSenators.length} senator{selectedSenators.length === 1 ? "" : "s"}</p>
+                <Link href="/balota" className="font-bold">
+                  See Ballot
+                </Link>
+              </div>
+            )
           }
-          
-          
+          <Dialog open={isSelectedSenatorsModalOpen} onOpenChange={(open) => {
+            if (!open) setSelectedSenatorsModalOpen(false);
+          }}>
+            <DialogContent  className="w-11/12">
+              <DialogTitle>You've already got your 12</DialogTitle>
+              <DialogDescription>You previously selected the following:</DialogDescription>
+              <ul className="full px-4">
+                {
+                  selectedSenators.map((sn) => (
+
+                    <li className="list-disc mb-1.5 flex justify-between items-center" key={sn.id}>
+                      <span>{sn.ballot_number} - {sn.ballot_name}</span>
+                      <button type="button" onClick={() => {
+                        removeSenator(sn);
+                        setSelectedSenatorsModalOpen(false);
+                      }}>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-5">
+                          <path fillRule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 1 1-.256 1.478l-.209-.035-1.005 13.07a3 3 0 0 1-2.991 2.77H8.084a3 3 0 0 1-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 0 1-.256-1.478A48.567 48.567 0 0 1 7.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 0 1 3.369 0c1.603.051 2.815 1.387 2.815 2.951Zm-6.136-1.452a51.196 51.196 0 0 1 3.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 0 0-6 0v-.113c0-.794.609-1.428 1.364-1.452Zm-.355 5.945a.75.75 0 1 0-1.5.058l.347 9a.75.75 0 1 0 1.499-.058l-.346-9Zm5.48.058a.75.75 0 1 0-1.498-.058l-.347 9a.75.75 0 0 0 1.5.058l.345-9Z" clipRule="evenodd" />
+                        </svg>
+                      </button>
+                    </li>
+                  ))
+                }
+              </ul>
+              <Link href="/balota" className="w-full bg-yellow-500 text-center py-1.5 rounded-xl !text-white">
+                See full ballot
+              </Link>
+            </DialogContent>
+          </Dialog>
+          </>
+          }
         </div>
     </div>);
 }
