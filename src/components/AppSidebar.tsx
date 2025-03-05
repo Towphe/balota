@@ -52,7 +52,7 @@ import Link from "next/link"
                                 </SidebarMenuButton>
                             </Link>
                         </SidebarMenuItem>
-                        <Collapsible defaultOpen={false} className="group/collapsible">
+                        <Collapsible defaultOpen={true} className="group/collapsible">
                             <SidebarMenuItem>
                                 <CollapsibleTrigger  className="">
                                     <div className="!w-[16rem] md:!w-[15rem] !flex items-center justify-between p-2">
