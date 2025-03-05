@@ -93,7 +93,7 @@ export default function Page() {
     if (count > 0) {
       // partylist already selected
       // render notification that says you've already selected your partylist
-      const instance = await db.partylists.limit(1).first();
+      // const instance = await db.partylists.limit(1).first();
       setNewlySelectedPartylist(partylist);
       setIsConfirmPartylistOpen(true);
       return;
