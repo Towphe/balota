@@ -18,6 +18,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { Partylist, PartylistsPayload } from "@/models/partylist";
 import { db } from "../../../db/db.model";
+import Link from "next/link";
 
 export default function Page() {
   const searchParams = useSearchParams();
@@ -148,7 +149,7 @@ export default function Page() {
   }, []);
 
   return (
-    <div className="h-full flex flex-col items-center justify-center py-12">
+    <div className="h-full flex flex-col items-center justify-center">
         <div className="w-5/6 md:w-4/5 lg:w-1/2 xl:w-2/5 2xl:w-1/3">
           <h1 className="text-4xl w-full text-start">Partylists</h1>
           <Form {...filterForm}>
@@ -352,6 +353,16 @@ export default function Page() {
             </PaginationContent>
           </Pagination>
             </>
+          }
+          {
+            selectedPartylist && (
+              <div className="fixed bottom-4 left-4 md:left-auto mx-auto w-11/12 md:w-4/5 lg:w-1/2 xl:w-2/5 2xl:w-1/3 bg-yellow-500 py-2 px-4 text-white flex justify-between items-center !shadow-xl !rounded-xl z-20">
+                <p className="text-lg">Selected {selectedPartylist.ballot_name}</p>
+                <Link href="/balota" className="font-bold">
+                  See Ballot
+                </Link>
+              </div>
+            )
           }
           <Dialog open={isConfirmPartylistOpen} onOpenChange={(open) => {
             if (!open) setIsConfirmPartylistOpen(false);
