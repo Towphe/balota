@@ -38,7 +38,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable}`}
       >
-        <SidebarProvider defaultOpen={false}>
+        <SidebarProvider defaultOpen={false} >
           <AppSidebar />
           <SidebarInset>
           <div className="grid grid-rows-[auto_1fr_auto] min-h-screen">
