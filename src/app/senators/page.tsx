@@ -61,6 +61,12 @@ export default function Page() {
 
   const retrieveSenators = async () => {
     const req = await fetch(`/api/senators?p=${page}&${count}=10&o=${order}&sb=${sortBy}${name !== null ? "&f=" + name : ""}`)
+
+    if (!req.ok) {
+      console.log(req.status)
+      return;
+    }
+
     const data:SenatorsPayload = await req.json();
     setSenators(data.senators);
     setTotalSenators(data.total);
@@ -178,8 +184,8 @@ export default function Page() {
                   </FormItem>)
                   }
                   >
-                </FormField>
-                </div>
+                  </FormField>
+                  </div>
                 <div className="w-[48%]">
                   <span className="text-xs opacity-60">Order</span>
                   <FormField
