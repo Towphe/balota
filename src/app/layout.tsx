@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog"
 import { AppSidebar } from "@/components/AppSidebar";
 import { Suspense } from "react";
+import Link from "next/link";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,9 +46,9 @@ export default function RootLayout({
             <header className="min-w-[calc(100vw-16rem)] max-w-screen px-2 py-4 flex justify-between items-center">
               <SidebarTrigger />
               <h1 className="!text-xl">
-                <a href="/">
+                <Link href={"/"}>
                   Balota
-                </a>
+                </Link>
               </h1>
               <Dialog>
                 <DialogTrigger asChild>
