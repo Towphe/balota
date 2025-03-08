@@ -33,8 +33,13 @@ export default function Home() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  <Link href="/local-candidates" className="!w-full">
-                    Local Positions
+                  <Link href="/" className="!w-full">
+                    Local Positions <span className="text-xs opacity-60">(coming soon)</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Link href="/" className="!w-full">
+                    Bangsamoro <span className="text-xs opacity-60">(coming soon)</span>
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>

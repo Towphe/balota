@@ -96,6 +96,10 @@ export default function Page() {
                         }
                     </div>
                 </div>
+                <div className="mt-3">
+                    <h2 className="text-2xl">Local Positions</h2>
+                    <p className="opacity-60">Coming soon</p>
+                </div>
             </div>
         </div>
     )
