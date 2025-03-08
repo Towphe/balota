@@ -2,6 +2,7 @@
 import { Prisma } from "@prisma/client";
 import prisma from "../../../../../../lib/prisma";
 import { openai } from "@/lib/openAi";
+import { NextResponse } from "next/server";
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -97,8 +98,10 @@ export async function GET(request:Request, {params}:{params: Promise<{id:string}
             }
         });
 
-        return Response.json(parsedBackground, {
-            status:200
+        return NextResponse.json(parsedBackground, {
+            headers: {
+                'Cache-Control': 's-maxage=60, stale-while-revalidate=30'
+            }
         });
     } catch (err) {
         console.log(err);

@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "../../../../lib/prisma";
 
 export async function GET(request:NextRequest) {
@@ -80,8 +80,12 @@ export async function GET(request:NextRequest) {
         }
     });
 
-    return Response.json({
+    return NextResponse.json({
         senators: senators,
         total: total
+    }, {
+        headers: {
+            'Cache-Control': 's-maxage=60, stale-while-revalidate=30'
+        }
     });
 }
