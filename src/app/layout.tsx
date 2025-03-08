@@ -44,7 +44,11 @@ export default function RootLayout({
           <div className="grid grid-rows-[auto_1fr_auto] min-h-screen">
             <header className="min-w-[calc(100vw-16rem)] max-w-screen px-2 py-4 flex justify-between items-center">
               <SidebarTrigger />
-              <h1 className="!text-xl">Balota</h1>
+              <h1 className="!text-xl">
+                <a href="/">
+                  Balota
+                </a>
+              </h1>
               <Dialog>
                 <DialogTrigger asChild>
                   <Button className="!bg-yellow-500 !rounded-md">
