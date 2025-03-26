@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { locationSchema } from "@/schema/locationSchema";
 import { useState, useEffect } from "react";
 import {z} from "zod";
@@ -52,12 +52,10 @@ export default function Page() {
         { "code": "NCR", "name": "National Capital Region"}
       ];
 
-      const [newRegion, setNewRegion] = useState<string| null>();
       const [region, setRegion] = useState<string|null>();
       const [provincesList, setProvincesList] = useState<ProvinceInfo[]>([]);
       const [province, setProvince] = useState<string|null>();
 
-      const [district, setDistrict] = useState<number|undefined>();
       const [provincialDistrict, setProvincialDistrict] = useState<number |undefined>();
       const [provinceDistrictCount, setProvinceDistrictCount] = useState<number|undefined>();
       const [provinceLegislativeDistrictCount, setProvinceLegislativeDistrictCount] = useState<number|undefined>();
@@ -69,7 +67,6 @@ export default function Page() {
       const [lgu, setLgu] = useState<string|undefined>();
       const [lgus, setLgus] = useState<LgusDto|undefined>();
 
-      const [localDistrict, setLocalDistrict] = useState<number|null>();
       const [legislativeDistrict, setLegislativeDistrict] = useState<number|undefined>();
       const [legislativeDistrictCount, setLegislativeDistrictCount]= useState<number>(0);
       const [isLocationModalOpen, setLocationModalOpen] = useState<boolean>(false);
@@ -97,20 +94,17 @@ export default function Page() {
       const [regionSelected, setRegionSelected] = useState<boolean>(false);
       const [provinceSelected, setProvinceSelected] = useState<boolean>(false);
       const [lguSelected, setLguSelected] = useState<boolean>(false);
-      const [representativeSelected, setRepresentativeSelected] = useState<boolean>(false);
-      const [provincialRepSelected, setProvincialRepSelected] = useState<boolean>(false);
-      const [lguDistrictSelected, setLguDistrictSelected] = useState<boolean>(false);
       const [isNcrPicked, setIsNcrPicked] = useState<boolean>(false);
       
     
     const locationForm = useForm<z.infer<typeof locationSchema>>({
         resolver: zodResolver(locationSchema),
         defaultValues: {
-            region: region ?? undefined,
-            province: province ?? undefined,
-            lgu: lgu ?? undefined,
-            legislativeDistrict: localDistrict ?? undefined,
-            councilorDistrict: localDistrict ?? undefined
+            region: undefined,
+            province: undefined,
+            lgu: undefined,
+            legislativeDistrict: undefined,
+            councilorDistrict: undefined
         }
     });
 
@@ -125,7 +119,7 @@ export default function Page() {
         setSelectedCouncilors([]);
     }
 
-    async function onSubmit(values: z.infer<typeof locationSchema>){
+    async function onSubmit(){
         const r = locationForm.getValues("region");
         const p = locationForm.getValues("province");
         const l = locationForm.getValues("lgu");
@@ -198,14 +192,10 @@ export default function Page() {
     }
 
     async function onRegionChange(regionName:string){
-        setNewRegion(regionName);
 
         setRegionSelected(true);
         setProvinceSelected(false);
         setLguSelected(false);
-        setLguDistrictSelected(false);
-        setRepresentativeSelected(false);
-        setProvincialRepSelected(false);
 
         // clear succeeding forms
         setProvincesList([]);
@@ -237,9 +227,6 @@ export default function Page() {
     async function onProvinceChange(provinceName:string){
         setProvinceSelected(true);
         setLguSelected(false);
-        setLguDistrictSelected(false);
-        setRepresentativeSelected(false);
-        setProvincialRepSelected(false);
 
         const provinces = provincesList.filter(p => p.name === provinceName);
         if (provinces.length === 0) {
@@ -267,9 +254,6 @@ export default function Page() {
         setNewLgu(lguName);
 
         setLguSelected(true);
-        setLguDistrictSelected(false);
-        setRepresentativeSelected(false);
-        setProvincialRepSelected(false);
         
         // clear succeeding provincial fields
         setProvincialDistrict(undefined);
@@ -483,18 +467,18 @@ export default function Page() {
             return;
         }
         
-        let d,pd,cd,ld, lguLegislativeDistrictCount, provinceDistrictCount, councilorDistrictCt;
+        let pd,cd,ld, lguLegislativeDistrictCount, provinceDistrictCount, councilorDistrictCt;
 
         try {
-            d = parseInt(ldisStr);
             if (pdisStr) pd = parseInt(pdisStr);
             if (cdisStr) cd = parseInt(cdisStr);
             if (ldisStr) ld = parseInt(ldisStr);
             if (ldc) lguLegislativeDistrictCount = parseInt(ldc);
             if (pldc) provinceDistrictCount = parseInt(pldc);
             if (cdc) councilorDistrictCt = parseInt(cdc);
-        } catch (err) {
+        } catch {
             // re-set info
+            
             setLocationModalOpen(true);
             return;
         }
@@ -521,16 +505,15 @@ export default function Page() {
         locationForm.setValue("lgu", l);
         if (pd) {
             setProvincialDistrict(pd);
-            setProvincialRepSelected(true);
             locationForm.setValue("provincialDistrict", pd);
         }
         setCouncilorDistrict(cd);
         locationForm.setValue("councilorDistrict", cd ?? 1);
-        setLguDistrictSelected(true);
+
         setCouncilorDistrictCount(councilorDistrictCt);
         setLegislativeDistrict(ld);
         locationForm.setValue("legislativeDistrict", ld ?? 1);
-        setDistrict(d)
+        
         setHasLocalRepresentatives(hasLocalRep === "true")
         if (lguLegislativeDistrictCount === 0) {
             setHasLocalRepresentatives(false);
@@ -538,7 +521,6 @@ export default function Page() {
             setHasLocalRepresentatives(true);
         }
         setLegislativeDistrictCount(lguLegislativeDistrictCount ?? 0);
-        setRepresentativeSelected(true);
         
         // retrieve candidates
         retrieveCandidates(r, p, l, ld?.toString() ?? "1", pdisStr ?? undefined, cdisStr ?? "");
@@ -546,6 +528,7 @@ export default function Page() {
         // retrieve previously set
         retrievePreviouslySetCandidates()
 
+        setProvinceDistrictCount(provinceDistrictCount);
         // close location modal
         setIsLocationSet(true);
         setLocationModalOpen(false);
@@ -798,7 +781,6 @@ export default function Page() {
                                                 <Select  onValueChange={(val) => {
                                                     field.onChange(parseInt(val));
                                                     locationForm.setValue("legislativeDistrict", parseInt(val));
-                                                    setRepresentativeSelected(true);
                                                     setLegislativeDistrict(parseInt(val))
                                                 }} defaultValue={lgu !== null && legislativeDistrict !== undefined ? legislativeDistrict.toString() : undefined} disabled={!lguSelected}>
                                                     <FormControl>
@@ -840,7 +822,6 @@ export default function Page() {
                                                 <Select  onValueChange={(val) => {
                                                     field.onChange(parseInt(val));
                                                     locationForm.setValue("provincialDistrict", parseInt(val));
-                                                    setProvincialRepSelected(true);
                                                     setProvincialDistrict(parseInt(val))
                                                 }} defaultValue={lgu !== null && provincialDistrict !== undefined ? provincialDistrict.toString() : undefined} disabled={!lguSelected || (isNcrPicked)}>
                                                     <FormControl>
@@ -874,7 +855,6 @@ export default function Page() {
                                                 <Select  onValueChange={(val) => {
                                                     field.onChange(parseInt(val));
                                                     locationForm.setValue("councilorDistrict", parseInt(val));
-                                                    setLguDistrictSelected(true);
                                                     setCouncilorDistrict(parseInt(val))
                                                 }} defaultValue={lgu !== null && councilorDistrict !== undefined ? councilorDistrict.toString() : undefined} disabled={!lguSelected}>
                                                     <FormControl>

@@ -1,21 +1,11 @@
-import { Prisma } from "@prisma/client";
 import prisma from "../../../../../../../lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
-const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
 export const maxDuration = 30;
 
-interface locationInfo {
-    province:string;
-    lgu:string;
-    district:string;
-}
-
-export async function GET(request:NextRequest, {params}:{params: Promise<locationInfo>}) {
+export async function GET(request:NextRequest) {
     const province = request?.nextUrl?.searchParams.get("p");
     const lgu = request?.nextUrl?.searchParams.get("l");
-    const legislativeDistirct = request?.nextUrl?.searchParams.get("ld");
     const provincialDistrict = request?.nextUrl?.searchParams.get("pd");
 
     const localCandidates = await prisma.local_candidate.findMany({

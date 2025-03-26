@@ -1,18 +1,9 @@
-import { Prisma } from "@prisma/client";
 import prisma from "../../../../lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
-const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
 export const maxDuration = 30;
 
-interface locationInfo {
-    province:string;
-    lgu:string;
-    district:string;
-}
-
-export async function GET(request:NextRequest, {params}:{params: Promise<locationInfo>}) {
+export async function GET(request:NextRequest) {
     const region = request?.nextUrl?.searchParams.get("r");
     const province = request?.nextUrl?.searchParams.get("p");
     const lgu = request?.nextUrl?.searchParams.get("l");
@@ -56,7 +47,7 @@ export async function GET(request:NextRequest, {params}:{params: Promise<locatio
     if (localCandidates.filter((lc) => lc.position === 'PROVINCIAL BOARD MEMBER').length > 0) provincialBoard = localCandidates.filter(lc => lc.position === 'PROVINCIAL BOARD MEMBER')
     else provincialCandidates.filter((pc) => pc.position === 'PROVINCIAL_COUNCIL' && pc.district == provincialDistrict);
 
-    let localRepresentatives = localCandidates.filter((pc) => pc.position === 'REPRESENTATIVE');
+    const localRepresentatives = localCandidates.filter((pc) => pc.position === 'REPRESENTATIVE');
 
     const representatives = localRepresentatives.length > 0 ? localCandidates.filter((pc) => pc.position === 'REPRESENTATIVE') : provincialCandidates.filter((pc) => pc.position === 'DISTRICT_REPRESENTATIVE' && pc.district == legislativeDistirct);
 
