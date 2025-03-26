@@ -12,11 +12,12 @@ datasource db {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model lgu_summary {
-  id              String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name            String @db.VarChar(255)
-  province_name   String @db.VarChar(255)
-  region          String @db.VarChar(255)
-  total_districts Int    @default(0)
+  id                          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                        String  @db.VarChar(255)
+  province_name               String? @db.VarChar(255)
+  region                      String  @db.VarChar(255)
+  total_lgu_districts         Int     @default(0)
+  total_legislative_districts Int     @default(0)
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -31,6 +32,7 @@ model local_candidate {
   lgu           String? @db.VarChar(255)
   district      Int?
   province      String? @db.VarChar(255)
+  background    Json?
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.

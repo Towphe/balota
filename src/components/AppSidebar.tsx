@@ -76,8 +76,8 @@ import Link from "next/link"
                                         <Link href="/partylists">
                                             <SidebarMenuButton className="!flex items-center">Partylists</SidebarMenuButton>
                                         </Link>
-                                        <Link href="/" className="disabled">
-                                            <SidebarMenuButton className="!flex items-center hover:cursor-not-allowed disabled">Local Candidates <span className="text-xs opacity-60">(coming soon)</span></SidebarMenuButton>
+                                        <Link href="/local-candidates" className="disabled">
+                                            <SidebarMenuButton className="!flex items-center">Local Candidates</SidebarMenuButton>
                                         </Link>
                                         <Link href="/" className="disabled">
                                             <SidebarMenuButton className="!flex items-center hover:cursor-not-allowed disabled">Bangsamoro <span className="text-xs opacity-60">(coming soon)</span></SidebarMenuButton>
