@@ -4,7 +4,7 @@ import prisma from "../../../../../../lib/prisma";
 
 export const maxDuration = 30;
 
-export async function GET(request:NextRequest, {params}:{params: Promise<{lgu:string}>}) {
+export async function GET(request:NextRequest) {
     const province = request?.nextUrl?.searchParams.get("p");
     const lgu = request?.nextUrl?.searchParams.get("l");
 

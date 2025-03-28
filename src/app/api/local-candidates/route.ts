@@ -45,7 +45,7 @@ export async function GET(request:NextRequest) {
     // handle LGUs with their own provincial board members
     let provincialBoard;
     if (localCandidates.filter((lc) => lc.position === 'PROVINCIAL BOARD MEMBER').length > 0) provincialBoard = localCandidates.filter(lc => lc.position === 'PROVINCIAL BOARD MEMBER')
-    else provincialCandidates.filter((pc) => pc.position === 'PROVINCIAL_COUNCIL' && pc.district == provincialDistrict);
+    else provincialBoard = provincialCandidates.filter((pc) => pc.position === 'PROVINCIAL_COUNCIL' && pc.district == provincialDistrict);
 
     const localRepresentatives = localCandidates.filter((pc) => pc.position === 'REPRESENTATIVE');
 

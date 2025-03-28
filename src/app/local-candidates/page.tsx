@@ -267,9 +267,8 @@ export default function Page() {
             const res = await fetch(`/api/location/lgus/has-provincial-rep?l=${lguName}&p=${newProvince}`);
             const data = await res.json();
 
-            console.log(data);
-
             if (data.hasOwnProvincialRep === true) {
+                console.log(data);
                 // disable provincial rep selection
                 locationForm.setValue("provincialDistrict", 1);
                 // set provincial district count to only 1
@@ -781,7 +780,7 @@ export default function Page() {
                                                     field.onChange(parseInt(val));
                                                     locationForm.setValue("legislativeDistrict", parseInt(val));
                                                     setLegislativeDistrict(parseInt(val))
-                                                }} defaultValue={lgu !== null && legislativeDistrict !== undefined ? legislativeDistrict.toString() : undefined} disabled={!lguSelected}>
+                                                }} defaultValue={lgu !== undefined && legislativeDistrict !== undefined ? legislativeDistrict.toString() : undefined} disabled={!lguSelected}>
                                                     <FormControl>
                                                         <SelectTrigger className="w-full ">
                                                             <SelectValue placeholder="Select City or Municipality"/>
@@ -822,7 +821,7 @@ export default function Page() {
                                                     field.onChange(parseInt(val));
                                                     locationForm.setValue("provincialDistrict", parseInt(val));
                                                     setProvincialDistrict(parseInt(val))
-                                                }} defaultValue={lgu !== null && provincialDistrict !== undefined ? provincialDistrict.toString() : undefined} disabled={!lguSelected || (isNcrPicked)}>
+                                                }} defaultValue={lgu !== undefined && provincialDistrict !== undefined ? provincialDistrict.toString() : undefined} disabled={!lguSelected || (isNcrPicked)}>
                                                     <FormControl>
                                                         <SelectTrigger className="w-full ">
                                                             <SelectValue placeholder="Select City or Municipality"/>
@@ -855,7 +854,7 @@ export default function Page() {
                                                     field.onChange(parseInt(val));
                                                     locationForm.setValue("councilorDistrict", parseInt(val));
                                                     setCouncilorDistrict(parseInt(val))
-                                                }} defaultValue={lgu !== null && councilorDistrict !== undefined ? councilorDistrict.toString() : undefined} disabled={!lguSelected}>
+                                                }} defaultValue={lgu !== undefined && councilorDistrict !== undefined ? councilorDistrict.toString() : undefined} disabled={!lguSelected}>
                                                     <FormControl>
                                                         <SelectTrigger className="w-full ">
                                                             <SelectValue placeholder="Select City or Municipality"/>
