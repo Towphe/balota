@@ -34,7 +34,7 @@ export default function Home() {
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Link href="/" className="!w-full">
-                    Local Positions <span className="text-xs opacity-60">(coming soon)</span>
+                    Local Positions
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
