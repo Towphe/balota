@@ -52,9 +52,11 @@ export default function Page() {
         { "code": "NCR", "name": "National Capital Region"}
       ];
 
-      const [region, setRegion] = useState<string|null>();
+      const [region, setRegion] = useState<string|undefined>();
+
+      const [newProvince, setNewProvince] = useState<string|undefined>();
       const [provincesList, setProvincesList] = useState<ProvinceInfo[]>([]);
-      const [province, setProvince] = useState<string|null>();
+      const [province, setProvince] = useState<string|undefined>();
 
       const [provincialDistrict, setProvincialDistrict] = useState<number |undefined>();
       const [provinceDistrictCount, setProvinceDistrictCount] = useState<number|undefined>();
@@ -127,15 +129,6 @@ export default function Page() {
         const cd = locationForm.getValues("councilorDistrict");
         const pd = locationForm.getValues("provincialDistrict");
 
-        // if (!region || (!province && region?.toLocaleLowerCase() !== "ncr") || !lgu || !legislativeDistrict) {
-        //     // add error prompt
-        //     console.log(!region);
-        //     console.log(!province && region?.toLocaleLowerCase() !== "ncr");
-        //     console.log(!lgu);
-        //     console.log(!legislativeDistrict)
-        //     return;
-        // }
-
         // set in page
         setRegion(r);
         setProvince(p);
@@ -161,8 +154,6 @@ export default function Page() {
         } else {
             localStorage.setItem("provinceLegislativeDistrictCount", provinceDistrictCount?.toString() ?? "0");    
         }
-        // localStorage.setItem("provinceLegislativeDistrictCount", provinceDistrictCount?.toString() ?? "0");
-        // localStorage.setItem("lguLegislativeDistrictCount", legislativeDistrictCount.toString());
 
         // set councilor district
         localStorage.setItem("councilorDistrict", cd ? cd.toString() : "1");
@@ -225,6 +216,9 @@ export default function Page() {
     }
 
     async function onProvinceChange(provinceName:string){
+        // set placeholder
+        setNewProvince(provinceName);
+        
         setProvinceSelected(true);
         setLguSelected(false);
 
@@ -260,7 +254,6 @@ export default function Page() {
 
         // clear succeeding legislative fields
         setLegislativeDistrict(undefined);
-        // setProvinceLegislativeDistrictCount(0);
 
         // clear succeeding councilor fields
         setCouncilorDistrict(undefined);
@@ -269,14 +262,20 @@ export default function Page() {
         // get LGU details
         const lguDetails = lgus?.lgus.filter((l) => l.name === lguName)[0];
 
-        // console.log(lguDetails)
-        // console.log(provinceLegislativeDistrictCount);
-        // console.log(lguDetails?.total_legislative_districts ?? 0);
+        // check existence of own provincial board representatives for non-NCR
+        if (region !== "NCR") {
+            const res = await fetch(`/api/location/lgus/has-provincial-rep?l=${lguName}&p=${newProvince}`);
+            const data = await res.json();
 
-        // Array.from(Array(provinceLegislativeDistrictCount).keys()).map((num) => {
-        //     const treatedNum = num+1;
-        //     console.log(treatedNum)
-        // });
+            console.log(data);
+
+            if (data.hasOwnProvincialRep === true) {
+                // disable provincial rep selection
+                locationForm.setValue("provincialDistrict", 1);
+                // set provincial district count to only 1
+                setProvinceDistrictCount(1);
+            }
+        }
 
         if (lguDetails?.total_legislative_districts === 0) {
             setHasLocalRepresentatives(false);
@@ -495,7 +494,7 @@ export default function Page() {
             setIsNcrPicked(true);
             
         }
-        setProvince(p);
+        setProvince(p ?? undefined);
         if (p) {
             retrieveLGUs(p);
             locationForm.setValue("province", p);
