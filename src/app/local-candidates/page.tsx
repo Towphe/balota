@@ -149,11 +149,12 @@ export default function Page() {
         else localStorage.removeItem("provincialDistrict");
 
         // set marker if lgu has own representative
-        if (hasLocalRepresentatives) {
-            localStorage.setItem("lguLegislativeDistrictCount", legislativeDistrictCount.toString());    
-        } else {
-            localStorage.setItem("provinceLegislativeDistrictCount", provinceDistrictCount?.toString() ?? "0");    
-        }
+        // if (hasLocalRepresentatives) {
+        //     localStorage.setItem("lguLegislativeDistrictCount", legislativeDistrictCount.toString());    
+        // } else {
+        //     localStorage.setItem("provinceLegislativeDistrictCount", provinceDistrictCount?.toString() ?? "0");    
+        // }
+        localStorage.setItem("legislativeDistrictCount", legislativeDistrictCount?.toString() ?? 0);
 
         // set councilor district
         localStorage.setItem("councilorDistrict", cd ? cd.toString() : "1");
@@ -208,6 +209,7 @@ export default function Page() {
 
         if (regionName === "NCR") {
             await retrieveNCRCities();
+            setProvince(undefined);
             setIsNcrPicked(true);
         } else {
             retrieveProvinces(regionName);
@@ -267,8 +269,9 @@ export default function Page() {
             const res = await fetch(`/api/location/lgus/has-provincial-rep?l=${lguName}&p=${newProvince}`);
             const data = await res.json();
 
+            console.log(data);
+
             if (data.hasOwnProvincialRep === true) {
-                console.log(data);
                 // disable provincial rep selection
                 locationForm.setValue("provincialDistrict", 1);
                 // set provincial district count to only 1
@@ -457,26 +460,30 @@ export default function Page() {
         const cdisStr = localStorage.getItem("councilorDistrict");
         const hasLocalRep = localStorage.getItem("hasLocalRepresentatives");
         const pldc = localStorage.getItem("provinceLegislativeDistrictCount");
-        const ldc = localStorage.getItem("lguLegislativeDistrictCount");
+        const ldc = localStorage.getItem("legislativeDistrictCount");
         const cdc = localStorage.getItem("councilorDistrictCount");
-        
+
         if (!r || !(p || r === "NCR") || !l || !ldisStr || !hasLocalRep) {
             setLocationModalOpen(true);
             return;
         }
         
-        let pd,cd,ld, lguLegislativeDistrictCount, provinceDistrictCount, councilorDistrictCt;
+        let pd,cd,ld, legislativeDistrictCount, provinceDistrictCount, councilorDistrictCt;
 
         try {
             if (pdisStr) pd = parseInt(pdisStr);
             if (cdisStr) cd = parseInt(cdisStr);
-            if (ldisStr) ld = parseInt(ldisStr);
-            if (ldc) lguLegislativeDistrictCount = parseInt(ldc);
+            if (ldisStr) ld = parseInt(ldisStr);        // console.log(pldc);
+            // console.log(ldc);
+            console.log(cdc);
+            console.log(lgu !== undefined);
+            // &
+            console.log(councilorDistrict !== undefined);
+            if (ldc) legislativeDistrictCount = parseInt(ldc);
             if (pldc) provinceDistrictCount = parseInt(pldc);
             if (cdc) councilorDistrictCt = parseInt(cdc);
         } catch {
             // re-set info
-            
             setLocationModalOpen(true);
             return;
         }
@@ -499,12 +506,14 @@ export default function Page() {
             locationForm.setValue("province", p);
         }
         setLgu(l);
+        setNewLgu(l);
         setLguSelected(true);
         locationForm.setValue("lgu", l);
         if (pd) {
             setProvincialDistrict(pd);
             locationForm.setValue("provincialDistrict", pd);
         }
+        
         setCouncilorDistrict(cd);
         locationForm.setValue("councilorDistrict", cd ?? 1);
 
@@ -513,12 +522,20 @@ export default function Page() {
         locationForm.setValue("legislativeDistrict", ld ?? 1);
         
         setHasLocalRepresentatives(hasLocalRep === "true")
-        if (lguLegislativeDistrictCount === 0) {
-            setHasLocalRepresentatives(false);
-        } else {
+        if (hasLocalRep) {
             setHasLocalRepresentatives(true);
+            setLegislativeDistrictCount(legislativeDistrictCount ?? 1);
+        } else {
+            setHasLocalRepresentatives(false);
+            setProvinceDistrictCount(legislativeDistrict ?? 1);
         }
-        setLegislativeDistrictCount(lguLegislativeDistrictCount ?? 0);
+        // if (legislativeDistrictCount === 0) {
+        //     setHasLocalRepresentatives(false);
+        //     setProvinceLegislativeDistrictCount()
+        // } else {
+        //     setHasLocalRepresentatives(true);
+        // }
+        // setLegislativeDistrictCount(legislativeDistrictCount ?? 0);
         
         // retrieve candidates
         retrieveCandidates(r, p, l, ld?.toString() ?? "1", pdisStr ?? undefined, cdisStr ?? "");
