@@ -187,6 +187,8 @@ export default function Page() {
     }
 
     async function onRegionChange(regionName:string){
+        locationForm.setValue("province",undefined);
+        locationForm.resetField("lgu", undefined);
 
         setRegionSelected(true);
         setProvinceSelected(false);
@@ -221,6 +223,8 @@ export default function Page() {
     }
 
     async function onProvinceChange(provinceName:string){
+        locationForm.setValue("province",undefined);
+        locationForm.resetField("lgu", undefined);
 
         // set placeholder
         setNewProvince(provinceName);
