@@ -253,7 +253,7 @@ export default function Page() {
                               <div className="flex flex-col items-center gap-1.5 text-[0.85rem] w-full">
                                 <h3 className="font-semibold opacity-90 w-full">Background</h3>
                                 {
-                                  senatorBackground && (
+                                  senatorBackground?.summary && (
                                     <p>{senatorBackground.summary}</p>
                                   )
                                 }
@@ -264,32 +264,108 @@ export default function Page() {
                                 }
                               </div>
                               <Accordion type="single" collapsible className="w-full overflow-x-hidden">
+                              <AccordionItem value="career">
+                                <AccordionTrigger>Career</AccordionTrigger>
+                                <AccordionContent className="flex flex-col gap-1.5 !w-max-full">
+                                  {
+                                    !isSenatorBackgroundRendered ?
+                                    <div className="flex flex-col items-center justify-center py-6">
+                                      <LoadingSpinner className="size-12"></LoadingSpinner>
+                                    </div> :
+                                    (<>
+                                      {
+                                      senatorBackground?.career !== null && (
+                                        senatorBackground?.career.map((career,i) => (
+                                          <p key={i}>{career}</p>
+                                        ))
+                                      )
+                                      }
+                                      {
+                                        !senatorBackground?.career === null && (
+                                          <p>No relevant information found.</p>
+                                        )
+                                      }
+                                    </>)
+                                  }
+                                  </AccordionContent>
+                              </AccordionItem>
+                              <AccordionItem value="achievements">
+                                <AccordionTrigger>Achievements</AccordionTrigger>
+                                <AccordionContent className="flex flex-col gap-1.5 !w-max-full">
+                                  {
+                                    !isSenatorBackgroundRendered ?
+                                    <div className="flex flex-col items-center justify-center py-6">
+                                      <LoadingSpinner className="size-12"></LoadingSpinner>
+                                    </div> :
+                                    (<>
+                                      {
+                                      senatorBackground && (
+                                        senatorBackground.achievements.map((achievement,i) => (
+                                          <p key={i}>{achievement}</p>
+                                        ))
+                                      )
+                                      }
+                                      {
+                                        !senatorBackground && (
+                                          <p>No relevant information found.</p>
+                                        )
+                                      }
+                                    </>)
+                                  }
+                                  </AccordionContent>
+                              </AccordionItem>
+                              <AccordionItem value="scandals">
+                                <AccordionTrigger>Scandals</AccordionTrigger>
+                                <AccordionContent className="flex flex-col gap-1.5 !w-max-full">
+                                  
+                                  {
+                                    !isSenatorBackgroundRendered ?
+                                    <div className="flex flex-col items-center justify-center py-6">
+                                      <LoadingSpinner className="size-12"></LoadingSpinner>
+                                    </div> :
+                                    (<ul>
+                                      {
+                                      senatorBackground?.scandals !== null && (
+                                        senatorBackground?.scandals.map((scandal,i) => (
+                                          <li key={i}>{scandal}</li>
+                                        ))
+                                      )
+                                      }
+                                      {
+                                        senatorBackground?.scandals === null && (
+                                          <p>No relevant information found.</p>
+                                        )
+                                      }
+                                    </ul>)
+                                  }
+                                  </AccordionContent>
+                              </AccordionItem>
                               <AccordionItem value="sources">
                                 <AccordionTrigger>Sources</AccordionTrigger>
                                 <AccordionContent className="flex flex-col gap-1.5 !w-max-full">
-                                {
-                                  !isSenatorBackgroundRendered ?
-                                  <div className="flex flex-col items-center justify-center py-6">
-                                    <LoadingSpinner className="size-12"></LoadingSpinner>
-                                  </div> :
-                                  (<>
-                                    {
-                                    senatorBackground && (
-                                      senatorBackground.sources.map((source,i) => (
-                                        <p key={i}>{source}</p>
-                                      ))
-                                    )
-                                    }
-                                    {
-                                      !senatorBackground && (
-                                        <p>No relevant sources found.</p>
+                                  {
+                                    !isSenatorBackgroundRendered ?
+                                    <div className="flex flex-col items-center justify-center py-6">
+                                      <LoadingSpinner className="size-12"></LoadingSpinner>
+                                    </div> :
+                                    (<>
+                                      {
+                                      senatorBackground?.sources && (
+                                        senatorBackground.sources.map((source,i) => (
+                                          <p key={i}>{source}</p>
+                                        ))
                                       )
-                                    }
-                                  </>)
-                                }
-                                      </AccordionContent>
-                                    </AccordionItem>
-                                </Accordion>
+                                      }
+                                      {
+                                        senatorBackground?.sources == null && (
+                                          <p>No relevant sources found.</p>
+                                        )
+                                      }
+                                    </>)
+                                  }
+                                  </AccordionContent>
+                                </AccordionItem>
+                              </Accordion>
                               </>
                               )
                           }
