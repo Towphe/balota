@@ -131,7 +131,8 @@ export default function Page() {
 
         // set in page
         setRegion(r);
-        setProvince(p);
+        if (p) setProvince(p);
+        else setProvince(undefined);
         setLgu(l);
         setLegislativeDistrict(ld);
         setCouncilorDistrict(cd)
@@ -169,6 +170,8 @@ export default function Page() {
     async function retrieveNCRCities(){
         // set province to undefined
         setProvince(undefined);
+        locationForm.setValue("province", undefined);
+        locationForm.setValue("provincialDistrict", undefined);
 
         // fetch NCR LGUs
         const lgusQuery = await fetch(`api/location/lgus/ncr`);
@@ -218,6 +221,7 @@ export default function Page() {
     }
 
     async function onProvinceChange(provinceName:string){
+
         // set placeholder
         setNewProvince(provinceName);
         
@@ -228,8 +232,6 @@ export default function Page() {
         if (provinces.length === 0) {
             return;
         }
-
-        // setProvince(provinceName);
 
         // clear succeeding provincial fields
         setProvinceLegislativeDistrictCount(0);
@@ -247,6 +249,11 @@ export default function Page() {
     }
 
     async function onLGUChange(lguName:string){
+        // clear form
+        locationForm.setValue("provincialDistrict", undefined);
+        locationForm.resetField("legislativeDistrict");
+        locationForm.resetField("councilorDistrict");
+
         setNewLgu(lguName);
 
         setLguSelected(true);
