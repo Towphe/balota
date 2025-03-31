@@ -45,7 +45,7 @@ export default function Home() {
               </DropdownMenuContent>
             </DropdownMenu>
             <Link href="/voters-education">
-              <Button className="w-[13rem] rounded-xl bg-yellow-500 !py-1">Voter's Education</Button>
+              <Button className="w-[13rem] rounded-xl bg-yellow-500 !py-1">Voter&apos;s Education</Button>
             </Link>
           </div>
       </div>
