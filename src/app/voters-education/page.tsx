@@ -78,7 +78,7 @@ export default function Page() {
             </div>
             <div id="candidate-responsibilities" className="w-5/6 md:w-3/4 lg:w-1/2 xl:w-2/5 2xl:w-1/3 mt-4">
                 <h2 className="text-xl font-medium mb-2">What are the responsibilities of each position?</h2>
-                <p className="mb-2">During the campaign period, many candidates promise their constituents that life will be better, poverty will be finished and that they will "fight" for them. However, what exactly do they do on the day to day basis?</p>
+                <p className="mb-2">During the campaign period, many candidates promise their constituents that life will be better, poverty will be finished and that they will &quot;fight&quot; for them. However, what exactly do they do on the day to day basis?</p>
                 <h4 id="senators-responsibilities" className="text-lg">Senators</h4>
                 <p className="mb-1">As per the <span className="font-bold">1987 Philippine Constitution</span> and other laws, the key duties and responsibilities of a senator are:</p>
                 <ul className="list-disc list-inside pl-4">
@@ -127,7 +127,7 @@ export default function Page() {
                     <li>Presiding officier of the Sangguniang Panlalawigan (provincial board)</li>
                     <li>Break tie votes in provincial board voting</li>
                     <li>Propose or sponsor provincial ordinances</li>
-                    <li>Assume the Governor's position when necessary</li>
+                    <li>Assume the Governor&apos;s position when necessary</li>
                 </ul>
                 <h4 id="provincial-board-responsibilities" className="text-lg">Provincial Board Member (Sangguniang Panlalawigan)</h4>
                 <p className="mb-1">As per the <span className="font-bold">1987 Philippine Constitution</span> and other laws, the key duties and responsibilities of a provincial board member are:</p>
@@ -154,7 +154,7 @@ export default function Page() {
                     <li>Presiding officier of the Sangguniang Panlungsod (city council) or Sangguniang Bayan (Municipal Council)</li>
                     <li>Break tie votes in the council</li>
                     <li>Propose local laws</li>
-                    <li>Assume the Mayor's position when necessary</li>
+                    <li>Assume the Mayor&apos;s position when necessary</li>
                 </ul>
                 <h4 id="councilor-responsibilities" className="text-lg">Councilor</h4>
                 <p className="mb-1">As per the <span className="font-bold">1987 Philippine Constitution</span> and other laws, the key duties and responsibilities of a councilor are:</p>
@@ -181,9 +181,9 @@ export default function Page() {
                 <p className="mb-1">As long as you are a registed voter, all you need to bring is a <span className="font-bold">Valid ID</span> to be able to vote.</p>
                 <p className="mb-1">Valid IDs include:</p>
                 <ul className="list-disc list-inside pl-4">
-                    <li>Voter's ID</li>
+                    <li>Voter&apos;s ID</li>
                     <li>Passport</li>
-                    <li>Driver's License</li>
+                    <li>Driver&apos;s License</li>
                     <li>Postal ID</li>
                     <li>PhilSys (National ID)</li>
                     <li>SSS/GSSS ID</li>
