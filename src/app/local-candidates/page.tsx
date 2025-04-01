@@ -121,14 +121,16 @@ export default function Page() {
         setSelectedCouncilors([]);
     }
 
-    async function onSubmit(){
-        const r = locationForm.getValues("region");
-        const p = locationForm.getValues("province");
-        const l = locationForm.getValues("lgu");
-        const ld = locationForm.getValues("legislativeDistrict");
-        const cd = locationForm.getValues("councilorDistrict");
-        const pd = locationForm.getValues("provincialDistrict");
+    async function onSubmit(values: z.infer<typeof locationSchema>) {
+        console.log(values);
 
+        const r = values.region;
+        const p = values.province;
+        const l = values.lgu;
+        const ld = values.legislativeDistrict;
+        const cd = values.councilorDistrict;
+        const pd = values.provincialDistrict;
+        console.log(p);
         // set in page
         setRegion(r);
         if (p) setProvince(p);
@@ -223,7 +225,7 @@ export default function Page() {
     }
 
     async function onProvinceChange(provinceName:string){
-        locationForm.setValue("province",undefined);
+        // locationForm.setValue("province",undefined);
         locationForm.resetField("lgu", undefined);
 
         // set placeholder
@@ -280,7 +282,8 @@ export default function Page() {
             const res = await fetch(`/api/location/lgus/has-provincial-rep?l=${lguName}&p=${newProvince}`);
             const data = await res.json();
 
-            console.log(data);
+            locationForm.setValue("legislativeDistrict", 1);
+            locationForm.setValue("councilorDistrict", 1);
 
             if (data.hasOwnProvincialRep === true) {
                 // disable provincial rep selection
@@ -882,7 +885,7 @@ export default function Page() {
                                                     field.onChange(parseInt(val));
                                                     locationForm.setValue("councilorDistrict", parseInt(val));
                                                     setCouncilorDistrict(parseInt(val))
-                                                }} defaultValue={lgu !== undefined && councilorDistrict !== undefined ? councilorDistrict.toString() : undefined} disabled={!lguSelected}>
+                                                }} defaultValue={lgu !== undefined && councilorDistrict !== undefined ? councilorDistrict.toString() : undefined} value={lgu !== undefined && councilorDistrict !== undefined ? councilorDistrict.toString() : undefined} disabled={!lguSelected}>
                                                     <FormControl>
                                                         <SelectTrigger className="w-full ">
                                                             <SelectValue placeholder="Select City or Municipality"/>

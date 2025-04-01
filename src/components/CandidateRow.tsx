@@ -1,7 +1,9 @@
+"use client";
+
 import { LocalCandidate } from "@/models/LocalCandidate";
 import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "./ui/dialog";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CandidateDescription } from "@/models/candidateDescription";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
 import { LoadingSpinner } from "./LoadingSpinner";
@@ -31,12 +33,16 @@ export function CandidateRow(props: CandidateRowProps) {
         }
     
         const data:CandidateDescription = await req.json();
-    
+        console.log(data);
         setBackground(data);
         setIsBackgroundRendered(true);
         
         return;
       }
+
+    useEffect(() => {
+        console.log(background)
+    }, [background]);
     
     return (
         <div key={details.id} className="flex justify-between items-center">
@@ -78,20 +84,20 @@ export function CandidateRow(props: CandidateRowProps) {
                                                         <div className="flex flex-col items-center justify-center py-6">
                                                             <LoadingSpinner className="size-12"></LoadingSpinner>
                                                         </div> :
-                                                        (<>
+                                                        (
+                                                        <>
                                                         {
-                                                            background?.career !== null && (
-                                                            background?.career.map((career,i) => (
+                                                            background?.career !== undefined && background?.career.length >0  ? (
+                                                                background?.career.map((career,i) => (
                                                                         <p key={i}>{career}</p>
                                                                     ))
+                                                                ):
+                                                                (
+                                                                    <p>No relevant information found.</p>
                                                                 )
                                                         }
-                                                        {
-                                                        !background?.career === null && (
-                                                            <p>No relevant information found.</p>
-                                                            )
-                                                        }
-                                                        </>)
+                                                        </>
+                                                        )
                                                 }
                                                 </AccordionContent>
                                         </AccordionItem>
@@ -105,17 +111,15 @@ export function CandidateRow(props: CandidateRowProps) {
                                                             </div> :
                                                             (<>
                                                                 {
-                                                                    background && (
-                                                                        background.achievements.map((achievement,i) => (
+                                                                background?.achievements !== undefined && background?.achievements.length >0  ? (
+                                                                    background?.achievements.map((achievement,i) => (
                                                                             <p key={i}>{achievement}</p>
                                                                         ))
-                                                                    )
-                                                                }
-                                                                {
-                                                                    !background && (
+                                                                    ):
+                                                                    (
                                                                         <p>No relevant information found.</p>
-                                                                        )
-                                                                }
+                                                                    )
+                                                                }  
                                                         </>)
                                                     }
                                             </AccordionContent>
@@ -131,16 +135,16 @@ export function CandidateRow(props: CandidateRowProps) {
                                                                             </div> :
                                                                             (<ul>
                                                                               {
-                                                                              background?.scandals !== null && (
+                                                                              background?.scandals !== undefined && background.scandals.length > 0 ?
+                                                                              (
                                                                                 background?.scandals.map((scandal,i) => (
                                                                                   <li key={i}>{scandal}</li>
                                                                                 ))
                                                                               )
-                                                                              }
-                                                                              {
-                                                                                background?.scandals === null && (
-                                                                                  <p>No relevant information found.</p>
-                                                                                )
+                                                                              :
+                                                                              (
+                                                                                <p>No relevant information found.</p>
+                                                                              )
                                                                               }
                                                                             </ul>)
                                                 }

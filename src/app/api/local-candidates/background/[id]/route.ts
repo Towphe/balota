@@ -54,11 +54,11 @@ export async function GET(request:Request, {params}:{params: Promise<{id:string}
                 Provide a concise background summary on ${fullName}, who is running for ${localCandidate.position} in the 2025 Philippine Election. in JSON format. 
                 Include:
                 - "summary": A brief, 100-word bio-profile of the candidate. Format as a string.
-                - "career": A list of their past experiences both in politics and outside politics. Highlight those most remarkable. Include the duration as years. Format as a string array.
-                - "achievements": A brief list of their most notable political achievements. Be specific on particular laws, and projects. Format as a string array.
-                - "scandals": A brief list of their scandals and legal cases. Include when it happened. Only include those that are filed through the legal system. Format as a string array.
+                - "career": A list of their past experiences both in politics and outside politics. Highlight those most remarkable. Include the duration as years. Format as a string array. If none found, simply return an empty array.
+                - "achievements": A brief list of their most notable political achievements. Be specific on particular laws, and projects. Format as a string array. If none found, simply return an empty array.
+                - "scandals": A brief list of their scandals and legal cases. Include when it happened. Only include those that are filed through the legal system. Format as a string array. If none found, simply return an empty array.
                 - "sources": A list of up-to-date and credible sources (in complete URL) for further reading. Format as a string array with the year embedded at the end of the details.
-                Ensure the response is in JSON with no extra commentary and no "\`\`\`json" on top. If no information is found for a property, simply mark it as null. Do not use flowery language. Do not make inferences about Philippines politics based on them. Be specific on their political experience and scandals.
+                Ensure the response is in JSON with no extra commentary and no "\`\`\`json" on top. Do not use flowery language. Do not make inferences about Philippines politics based on them. Be specific on their political experience and scandals.
                 ​​`
             }
         ],
@@ -95,6 +95,9 @@ export async function GET(request:Request, {params}:{params: Promise<{id:string}
             data: {
                 background: {
                     summary: parsedBackground.summary,
+                    career: parsedBackground.career ?? [] as Prisma.JsonArray,
+                    achievements: parsedBackground.achievements ?? [] as Prisma.JsonArray,
+                    scandals: parsedBackground.scandals ?? [] as Prisma.JsonArray,
                     sources: [...parsedBackground.sources] as Prisma.JsonArray
                 },
             }
