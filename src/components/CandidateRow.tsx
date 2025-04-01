@@ -70,6 +70,82 @@ export function CandidateRow(props: CandidateRowProps) {
                                             }
                                         </div>
                                     <Accordion type="single" collapsible className="w-full overflow-x-hidden">
+                                        <AccordionItem value="career">
+                                            <AccordionTrigger>Career</AccordionTrigger>
+                                                <AccordionContent className="flex flex-col gap-1.5 !w-max-full">
+                                                {
+                                                    !isBackgroundRendered ?
+                                                        <div className="flex flex-col items-center justify-center py-6">
+                                                            <LoadingSpinner className="size-12"></LoadingSpinner>
+                                                        </div> :
+                                                        (<>
+                                                        {
+                                                            background?.career !== null && (
+                                                            background?.career.map((career,i) => (
+                                                                        <p key={i}>{career}</p>
+                                                                    ))
+                                                                )
+                                                        }
+                                                        {
+                                                        !background?.career === null && (
+                                                            <p>No relevant information found.</p>
+                                                            )
+                                                        }
+                                                        </>)
+                                                }
+                                                </AccordionContent>
+                                        </AccordionItem>
+                                        <AccordionItem value="achievements">
+                                            <AccordionTrigger>Achievements</AccordionTrigger>
+                                                <AccordionContent className="flex flex-col gap-1.5 !w-max-full">
+                                                    {
+                                                        !isBackgroundRendered ?
+                                                            <div className="flex flex-col items-center justify-center py-6">
+                                                                <LoadingSpinner className="size-12"></LoadingSpinner>
+                                                            </div> :
+                                                            (<>
+                                                                {
+                                                                    background && (
+                                                                        background.achievements.map((achievement,i) => (
+                                                                            <p key={i}>{achievement}</p>
+                                                                        ))
+                                                                    )
+                                                                }
+                                                                {
+                                                                    !background && (
+                                                                        <p>No relevant information found.</p>
+                                                                        )
+                                                                }
+                                                        </>)
+                                                    }
+                                            </AccordionContent>
+                                        </AccordionItem>
+                                        <AccordionItem value="scandals">
+                                                                        <AccordionTrigger>Scandals</AccordionTrigger>
+                                                                        <AccordionContent className="flex flex-col gap-1.5 !w-max-full">
+                                                                          
+                                                                          {
+                                                                            !isBackgroundRendered ?
+                                                                            <div className="flex flex-col items-center justify-center py-6">
+                                                                              <LoadingSpinner className="size-12"></LoadingSpinner>
+                                                                            </div> :
+                                                                            (<ul>
+                                                                              {
+                                                                              background?.scandals !== null && (
+                                                                                background?.scandals.map((scandal,i) => (
+                                                                                  <li key={i}>{scandal}</li>
+                                                                                ))
+                                                                              )
+                                                                              }
+                                                                              {
+                                                                                background?.scandals === null && (
+                                                                                  <p>No relevant information found.</p>
+                                                                                )
+                                                                              }
+                                                                            </ul>)
+                                                }
+                                            </AccordionContent>
+                                        </AccordionItem>
                                         <AccordionItem value="sources">
                                             <AccordionTrigger>Sources</AccordionTrigger>
                                             <AccordionContent className="flex flex-col gap-1.5 !w-max-full">
@@ -94,6 +170,7 @@ export function CandidateRow(props: CandidateRowProps) {
                                                     }
                                                     </>)
                                                 }
+                                                <p className="text-sm text-gray-800 "><span className="font-bold">Note:</span> some links may be archived.</p>
                                             </AccordionContent>
                                         </AccordionItem>
                                     </Accordion>

@@ -43,20 +43,22 @@ export async function GET(request:Request, {params}:{params: Promise<{id:string}
     const splittedName = localCandidate.name.split(',').reverse();
     const fullName = (splittedName[0] + " " + splittedName[1]).trim();
 
-    // return Response.json(fullName)
     // if no description within DB, create new one
     console.log("Generating new background...")
     const gptQuery = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: "gpt-4o",
         messages: [
             {
                 role:"user",
                 content: `
-                Provide a concise background summary on ${localCandidate.ballot_name}, who is running for ${localCandidate.position} in the 2025 Philippine Election. in JSON format. 
+                Provide a concise background summary on ${fullName}, who is running for ${localCandidate.position} in the 2025 Philippine Election. in JSON format. 
                 Include:
-                  - "summary": A brief, 150-word overview listing their political experience and highlighting most known scandals (if any). Do not use flowery language. Do not make inferences about Philippines politics based on them. Be specific on their political experience and scandals.
-                - "sources": A list of up-to-date and credible sources (in complete URL) for further reading.
-                Ensure the response is in JSON with no extra commentary and no "\`\`\`json" on top. If no information is found, simply return a blank string.
+                - "summary": A brief, 100-word bio-profile of the candidate. Format as a string.
+                - "career": A list of their past experiences both in politics and outside politics. Highlight those most remarkable. Include the duration as years. Format as a string array.
+                - "achievements": A brief list of their most notable political achievements. Be specific on particular laws, and projects. Format as a string array.
+                - "scandals": A brief list of their scandals and legal cases. Include when it happened. Only include those that are filed through the legal system. Format as a string array.
+                - "sources": A list of up-to-date and credible sources (in complete URL) for further reading. Format as a string array with the year embedded at the end of the details.
+                Ensure the response is in JSON with no extra commentary and no "\`\`\`json" on top. If no information is found for a property, simply mark it as null. Do not use flowery language. Do not make inferences about Philippines politics based on them. Be specific on their political experience and scandals.
                 ​​`
             }
         ],

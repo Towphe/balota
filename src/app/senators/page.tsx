@@ -361,6 +361,7 @@ export default function Page() {
                                           <p>No relevant sources found.</p>
                                         )
                                       }
+                                      <p className="text-sm text-gray-800 "><span className="font-bold">Note:</span> some links may be archived.</p>
                                     </>)
                                   }
                                   </AccordionContent>
