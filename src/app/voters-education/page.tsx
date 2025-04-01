@@ -15,9 +15,6 @@ export default function Page() {
                     <li>
                         <a href="#candidate-responsibilities" className="text-blue-500 ">What are the responsibilities of each position?</a>
                     </li>
-                    <li>
-                        <a href="#where-to-vote"  className="text-blue-500 ">Where do I vote?</a>
-                    </li>
                     <ul className="list-disc ml-6">
                         <li>
                             <a href="#senators-responsibilities" className="text-blue-500">Senator Responsibilities</a>
@@ -47,6 +44,9 @@ export default function Page() {
                             <a href="#councilor-responsibilities" className="text-blue-500">Councilor Responsibilities</a>
                         </li>
                     </ul>
+                    <li>
+                        <a href="#where-to-vote"  className="text-blue-500 ">Where do I vote?</a>
+                    </li>
                     <li>
                         <a href="#when-to-vote"  className="text-blue-500 ">When do I vote?</a>
                     </li>
