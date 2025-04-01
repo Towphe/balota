@@ -53,7 +53,7 @@ export async function GET(request:NextRequest) {
         skip: count*(page-1),
         take: count,
         where: {
-            ...(name && {ballot_name: { contains: name.toUpperCase() }}),
+            ...(name && {ballot_name: { contains: name, mode: 'insensitive' }}),
         },
         orderBy: {
             ...(sortBy === 'ballot_name' && {ballot_name: order}),
@@ -64,7 +64,7 @@ export async function GET(request:NextRequest) {
 
     const total = await prisma.partylist.count({
         where: {
-            ...(name && {ballot_name: { contains: name.toUpperCase() }}),
+            ...(name && {ballot_name: { contains: name, mode: "insensitive" }}),
         },
         orderBy: {
             ...(sortBy === 'ballot_name' && {ballot_name: order}),
