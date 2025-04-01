@@ -19,7 +19,6 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { db } from "../../../db/db.model";
 import Link from "next/link";
-import axios from "axios";
 
 export default function Page() {
   const searchParams = useSearchParams();
