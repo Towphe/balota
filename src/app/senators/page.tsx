@@ -427,9 +427,9 @@ export default function Page() {
                 </PaginationItem>
               }
               {
-                page > totalSenators/count ? <></> :
+                page > Math.ceil(totalSenators/count) ? <></> :
                 <PaginationItem>
-                  <PaginationLink href={`/senators?p=${page === 1 ? 3 : page + 1}${sortBy && `&sb=${sortBy}`}${sortBy && `&o=${order}`}${name !== null ? `&f=${name}` : ""}`} isActive={page > totalSenators/count}>
+                  <PaginationLink href={`/senators?p=${page === 1 ? 3 : page + 1}${sortBy && `&sb=${sortBy}`}${sortBy && `&o=${order}`}${name !== null ? `&f=${name}` : ""}`} isActive={page > Math.ceil(totalSenators/count)}>
                     {page === 1 ? 3 : page + 1}
                   </PaginationLink>
                 </PaginationItem>
