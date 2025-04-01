@@ -19,6 +19,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { db } from "../../../db/db.model";
 import Link from "next/link";
+import axios from "axios";
 
 export default function Page() {
   const searchParams = useSearchParams();
@@ -29,8 +30,9 @@ export default function Page() {
   const [count, setCount] = useState<number>(parseInt(countStr));
   const [page, setPage] = useState<number>(parseInt(pageStr));
   const [name, setName] = useState<string|null>(searchParams.get('f'));
-  const [sortBy, setSortBy] = useState<string|null>(searchParams.get('sb') ?? "ballot_number");
-  const [order, setOrder] = useState<string|null>(searchParams.get('o') ?? 'asc');
+  const [sortBy, setSortBy] = useState<string>(searchParams.get('sb') ?? "ballot_number");
+  const [order, setOrder] = useState<string>(searchParams.get('o') ?? 'asc');
+  console.log(order);
   const [senators, setSenators] = useState<Senator[]>([]);
   const [totalSenators, setTotalSenators] = useState<number>(0);
   const [senatorBackground, setSenatorBackground] = useState<CandidateDescription|null>(null);
@@ -51,6 +53,9 @@ export default function Page() {
   });
 
   function onSubmit(values:z.infer<typeof senatorFilterSchema>){
+    console.log(order);
+    console.log(values.order);
+
     setPage(1);
     setCount(10);
     setSortBy(values.sortBy);
@@ -60,10 +65,17 @@ export default function Page() {
   }
 
   const retrieveSenators = async () => {
-    const req = await fetch(`/api/senators?p=${page}&${count}=10&o=${order}&sb=${sortBy}${name !== null ? "&f=" + name : ""}`)
+    console.log(sortBy)
+    console.log(order);
+    console.log(`${name !== null ? `&f=${name}` : ""}`);
+    console.log(searchParams.get('p'));
+
+    const req = await fetch(`/api/senators?p=${page}&c=${count}=10&o=${order}&sb=${sortBy}${name !== null ? "&f=" + name : ""}`)
 
     if (!req.ok) {
       console.log(req.status)
+      // reset the query parameters
+
       return;
     }
 
@@ -394,7 +406,14 @@ export default function Page() {
             <Pagination>
             <PaginationContent>
               <PaginationItem>
-                <PaginationLink href={`/senators?p=${page === 1 ? 1 : page-1}`} isActive={page === 1}>
+                <PaginationLink href={page != 1 ? `/senators?p=1${sortBy && `&sb=${sortBy}`}${sortBy && `&o=${order}`}${name !== null ? `&f=${name}` : ""}` : location.href} isActive={page === 1}  className={page === 1 ? "opacity-70 hover:cursor-not-allowed" : ""}>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5" />
+                  </svg>
+                </PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink href={`/senators?p=${page === 1 ? 1 : page-1}${sortBy && `&sb=${sortBy}`}${sortBy && `&o=${order}`}${name !== null ? `&f=${name}` : ""}`} isActive={page === 1} className={page === 1 ? "font-bold" : ""}>
                   {page === 1 ? 1 : page-1}
                 </PaginationLink>
               </PaginationItem>
@@ -402,7 +421,7 @@ export default function Page() {
                 totalSenators <= count ?
                 <></> :
                 <PaginationItem>
-                  <PaginationLink href={`/senators?p=${page === 1 ? 2 : page}`} isActive={page !== 1}>
+                  <PaginationLink href={`/senators?p=${page === 1 ? 2 : page}${sortBy && `&sb=${sortBy}`}${sortBy && `&o=${order}`}${name !== null ? `&f=${name}` : ""}`} isActive={page !== 1} className={page !== 1 && page != Math.ceil(totalSenators/count) ? "font-bold" : ""}>
                     {page === 1 ? 2 : page}
                   </PaginationLink>
                 </PaginationItem>
@@ -410,12 +429,18 @@ export default function Page() {
               {
                 page > totalSenators/count ? <></> :
                 <PaginationItem>
-                  <PaginationLink href={`/senators?p=${page === 1 ? 3 : page + 1}`} isActive={page > totalSenators/count}>
+                  <PaginationLink href={`/senators?p=${page === 1 ? 3 : page + 1}${sortBy && `&sb=${sortBy}`}${sortBy && `&o=${order}`}${name !== null ? `&f=${name}` : ""}`} isActive={page > totalSenators/count}>
                     {page === 1 ? 3 : page + 1}
                   </PaginationLink>
                 </PaginationItem>
               }
-              
+              <PaginationItem>
+                <PaginationLink href={page != Math.ceil(totalSenators / count) ? `/senators?p=${Math.ceil(totalSenators/count)}${sortBy && `&sb=${sortBy}`}${sortBy && `&o=${order}`}${name !== null ? `&f=${name}` : ""}` : location.href} isActive={page === 1} className={page === Math.ceil(totalSenators/count) ? "font-bold" : ""}>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5" />
+                  </svg>
+                </PaginationLink>
+              </PaginationItem>
             </PaginationContent>
           </Pagination>
           {

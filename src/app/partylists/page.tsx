@@ -356,7 +356,14 @@ export default function Page() {
             <Pagination>
             <PaginationContent>
               <PaginationItem>
-                <PaginationLink href={`/partylists?p=${page === 1 ? 1 : page-1}`} isActive={page === 1}>
+                <PaginationLink href={page != 1 ? `/partylists?p=1${sortBy && `&sb=${sortBy}`}${sortBy && `&o=${order}`}${name !== null ? `&f=${name}` : ""}` : location.href} isActive={page === 1}  className={page === 1 ? "opacity-70 hover:cursor-not-allowed" : ""}>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5" />
+                  </svg>
+                </PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink href={`/partylists?p=${page === 1 ? 1 : page-1}`} isActive={page === 1} className={page === 1 ? "font-bold" : ""}>
                   {page === 1 ? 1 : page-1}
                 </PaginationLink>
               </PaginationItem>
@@ -364,7 +371,7 @@ export default function Page() {
                 totalPartylists <= count ?
                 <></> :
                 <PaginationItem>
-                  <PaginationLink href={`/partylists?p=${page === 1 ? 2 : page}`} isActive={page !== 1}>
+                  <PaginationLink href={`/partylists?p=${page === 1 ? 2 : page}`} isActive={page !== 1} className={page !== 1 && page != totalPartylists/count ? "font-bold" : ""}>
                     {page === 1 ? 2 : page}
                   </PaginationLink>
                 </PaginationItem>
@@ -372,12 +379,18 @@ export default function Page() {
               {
                 page > totalPartylists/count ? <></> :
                 <PaginationItem>
-                  <PaginationLink href={`/partylists?p=${page === 1 ? 3 : page + 1}`} isActive={page > totalPartylists/count}>
+                  <PaginationLink href={`/partylists?p=${page === 1 ? 3 : page + 1}`} isActive={page > Math.ceil(totalPartylists/count)}>
                     {page === 1 ? 3 : page + 1}
                   </PaginationLink>
                 </PaginationItem>
               }
-              
+            <PaginationItem>
+                <PaginationLink href={page != Math.ceil(totalPartylists / count) ? `/partylists?p=${Math.ceil(totalPartylists/count)}${sortBy && `&sb=${sortBy}`}${sortBy && `&o=${order}`}${name !== null ? `&f=${name}` : ""}` : location.href} isActive={page === 1} className={page === Math.ceil(totalPartylists/count) ? "font-bold" : ""}>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5" />
+                  </svg>
+                </PaginationLink>
+              </PaginationItem>
             </PaginationContent>
           </Pagination>
             </>
