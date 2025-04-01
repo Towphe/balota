@@ -4,7 +4,7 @@ export interface LocalCandidate {
     ballot_number: number
     name: string;
     ballot_name: string;
-    sex: string;
+    sex: string|undefined;
     position: string;
     partylist: string;
     lgu: string | undefined;

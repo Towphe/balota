@@ -275,6 +275,33 @@ export default function Page() {
                                 }
                               </div>
                               <Accordion type="single" collapsible className="w-full overflow-x-hidden">
+                                
+
+                              <AccordionItem value="career">
+                                <AccordionTrigger>Nominees</AccordionTrigger>
+                                                                              <AccordionContent className="flex flex-col gap-1.5 !w-max-full">
+                                                                              {
+                                                                                  !isPartylistBackgroundRendered ?
+                                                                                      <div className="flex flex-col items-center justify-center py-6">
+                                                                                          <LoadingSpinner className="size-12"></LoadingSpinner>
+                                                                                      </div> :
+                                                                                      (<>
+                                                                                      {
+                                                                                          partylistBackground?.nominees && (
+                                                                                          partylistBackground?.nominees.map((nominee,i) => (
+                                                                                                      <p key={i}>{nominee}</p>
+                                                                                                  ))
+                                                                                              )
+                                                                                      }
+                                                                                      {
+                                                                                      !partylistBackground?.nominees && (
+                                                                                          <p>Unable to get information on partylist nominees.</p>
+                                                                                          )
+                                                                                      }
+                                                                                      </>)
+                                    }
+                                  </AccordionContent>
+                                </AccordionItem>
                               <AccordionItem value="sources">
                                 <AccordionTrigger>Sources</AccordionTrigger>
                                 <AccordionContent className="flex flex-col gap-1.5 !w-max-full">
@@ -296,6 +323,7 @@ export default function Page() {
                                         <p>No relevant sources found.</p>
                                       )
                                     }
+                                    <p className="text-sm text-gray-800 "><span className="font-bold">Note:</span> some links may be archived.</p>
                                   </>)
                                 }
                                 

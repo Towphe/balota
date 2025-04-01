@@ -47,16 +47,17 @@ export async function GET(request:Request, {params}:{params: Promise<{id:string}
     // if no description within DB, create new one
     console.log("Generating new background...")
     const gptQuery = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: "gpt-4o",
         messages: [
             {
                 role:"user",
                 content: `
                 Provide a concise background summary on ${partylist.name}, a partylist aiming to gain a seat in the 2025 Philippine Election. in JSON format. 
                 Include:
-                  - "summary": A brief, 150-word overview listing their political experience and highlighting most known scandals (if any). Do not use flowery language. Do not make inferences about Philippines politics based on them. Be specific on their political experience and scandals.
-                - "sources": A list of up-to-date and credible sources (in complete URL) for further reading.
-                Ensure the response is in JSON with no extra commentary and no "\`\`\`json" on top. If no information is found, simply return a blank string.
+                - "summary": A brief, 100-word bio-profile of the partylist. Format as a string.
+                - "nominees": A list of their nominees for this upcoming 2025 elections. Format as a string array.
+                - "sources": A list of up-to-date and credible sources (in complete URL) for further reading. Format as a string array with the year embedded at the end of the details.
+                Ensure the response is in JSON with no extra commentary and no "\`\`\`json" on top. If no information is found for a property, simply mark it as null. Do not use flowery language. Do not make inferences about Philippines politics based on them. Be specific on their political experience and scandals.
                 ​​`
             }
         ],
