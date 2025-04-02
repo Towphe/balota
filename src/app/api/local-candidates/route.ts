@@ -42,10 +42,22 @@ export async function GET(request:NextRequest) {
         }
     });
 
+
+    // console.log(provincialCandidates    .filter(pc => pc.position === 'PROVINCIAL BOARD MEMBER' && pc.district === provincialDistrict));
+    // console.log(provincialCandidate.map(pc => pc.district))
+    console.log(provincialCandidates.filter(pc => pc.position === 'PROVINCIAL BOARD MEMBER' && pc.district === provincialDistrict))
+
+    // console.log()
+
+
     // handle LGUs with their own provincial board members
     let provincialBoard;
-    if (localCandidates.filter((lc) => lc.position === 'PROVINCIAL BOARD MEMBER').length > 0) provincialBoard = localCandidates.filter(lc => lc.position === 'PROVINCIAL BOARD MEMBER')
-    else provincialBoard = provincialCandidates.filter((pc) => pc.position === 'PROVINCIAL_COUNCIL' && pc.district == provincialDistrict);
+    if (localCandidates.filter(lc => lc.position === "PROVINCIAL BOARD MEMBER").length > 0) {
+        provincialBoard = localCandidates.filter(lc => lc.position === "PROVINCIAL BOARD MEMBER")
+    }
+    else {
+        provincialBoard = provincialCandidates.filter(pc => pc.position === 'PROVINCIAL BOARD MEMBER' && pc.district === parseInt(provincialDistrict ?? "1"));
+    }
 
     const localRepresentatives = localCandidates.filter((pc) => pc.position === 'REPRESENTATIVE');
 
