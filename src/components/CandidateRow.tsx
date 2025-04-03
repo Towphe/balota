@@ -177,6 +177,7 @@ export function CandidateRow(props: CandidateRowProps) {
                                                 <p className="text-sm text-gray-800 "><span className="font-bold">Note:</span> some links may be archived.</p>
                                             </AccordionContent>
                                         </AccordionItem>
+                                        <p className="mt-4"><span className="font-bold">NOTE:</span> Summaries are generated AI-Generated (by ChatGPT). A much more accurate summary-generation system is currently in the works. For now, kindly <span className="text-bold">cross-check</span> all info.</p>
                                     </Accordion>
                                 </>
                             )
