@@ -33,7 +33,7 @@ export default function Home() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  <Link href="/" className="!w-full">
+                  <Link href="/local-candidates" className="!w-full">
                     Local Positions
                   </Link>
                 </DropdownMenuItem>

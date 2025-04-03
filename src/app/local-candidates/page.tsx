@@ -13,6 +13,7 @@ import { ProvinceInfo } from "@/models/ProvinceInfo";
 import { LocalCandidate } from "@/models/LocalCandidate";
 import { db } from "../../../db/db.model";
 import { CandidateRow } from "@/components/CandidateRow";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 interface Lgu {
     id: string;
@@ -97,7 +98,8 @@ export default function Page() {
       const [provinceSelected, setProvinceSelected] = useState<boolean>(false);
       const [lguSelected, setLguSelected] = useState<boolean>(false);
       const [isNcrPicked, setIsNcrPicked] = useState<boolean>(false);
-      
+
+      const [isListRendered, toggleIsListRendered] = useState<boolean>(false);
     
     const locationForm = useForm<z.infer<typeof locationSchema>>({
         resolver: zodResolver(locationSchema),
@@ -122,6 +124,7 @@ export default function Page() {
     }
 
     async function onSubmit(values: z.infer<typeof locationSchema>) {
+        
         console.log(values);
 
         const r = values.region;
@@ -130,7 +133,7 @@ export default function Page() {
         const ld = values.legislativeDistrict;
         const cd = values.councilorDistrict;
         const pd = values.provincialDistrict;
-        console.log(p);
+        console.log(pd);
         // set in page
         setRegion(r);
         if (p) setProvince(p);
@@ -150,6 +153,8 @@ export default function Page() {
         // set provincial district
         if (pd) localStorage.setItem("provincialDistrict", pd.toString());
         else localStorage.removeItem("provincialDistrict");
+
+        toggleIsListRendered(false);
 
         // set marker if lgu has own representative
         // if (hasLocalRepresentatives) {
@@ -226,7 +231,9 @@ export default function Page() {
 
     async function onProvinceChange(provinceName:string){
         // locationForm.setValue("province",undefined);
-        locationForm.resetField("lgu", undefined);
+        locationForm.setValue("provincialDistrict", 1);
+        locationForm.resetField("legislativeDistrict", undefined);
+        locationForm.resetField("councilorDistrict", undefined);
 
         // set placeholder
         setNewProvince(provinceName);
@@ -256,9 +263,11 @@ export default function Page() {
 
     async function onLGUChange(lguName:string){
         // clear form
-        locationForm.setValue("provincialDistrict", undefined);
-        locationForm.resetField("legislativeDistrict");
-        locationForm.resetField("councilorDistrict");
+        // locationForm.setValue("provincialDistrict", undefined);
+        // locationForm.resetField("legislativeDistrict");
+        // locationForm.resetField("councilorDistrict");
+        locationForm.setValue("legislativeDistrict", 1);
+        locationForm.setValue("councilorDistrict", 1);
 
         setNewLgu(lguName);
 
@@ -348,6 +357,7 @@ export default function Page() {
     }
 
     async function retrieveCandidates(r:string|null, p:string|null|undefined, l:string, ld: string, pd: string|undefined, cd: string) {
+        console.log(pd);
         const candidatesReq = await fetch(`/api/local-candidates?r=${r}&l=${l}&ld=${ld}&cd=${cd}${pd !== undefined ? `&pd=${pd}` : ""}${p !== undefined ? `&p=${p}` : ""}`);
 
         if (!candidatesReq.ok){
@@ -369,6 +379,7 @@ export default function Page() {
         console.log(candidates.representatives);
         setRepresentatives(candidates.representatives);
         setProvincialBoard(candidates.provincialBoard);
+        toggleIsListRendered(true);
     }
 
     const selectGovernor = async (governor:LocalCandidate) => {
@@ -483,7 +494,6 @@ export default function Page() {
         }
         
         let pd,cd,ld, legislativeDistrictCount, provinceDistrictCount, councilorDistrictCt;
-
         try {
             if (pdisStr) pd = parseInt(pdisStr);
             if (cdisStr) cd = parseInt(cdisStr);
@@ -567,28 +577,73 @@ export default function Page() {
         <div className="h-full flex flex-col items-center justify-center py-12">
             <div className="w-5/6 md:w-4/5 lg:w-1/2 xl:w-2/5 2xl:w-1/3">
                 <h1 className="text-4xl text-justify">Local Candidates</h1>
-                {
-                    isLocationSet && (
-                        <h2 className="opacity-70 mb-4">Region {region} - {region !== "NCR" ? `${province} - ` : ""} {lgu}</h2>
-                    )
-                }
-                {
-                    province && (
+                    <>
+                    {
+                        isLocationSet && (
+                            <h2 className="opacity-70 mb-4">Region {region} - {region !== "NCR" ? `${province} - ` : ""} {lgu}</h2>
+                        )
+                    }
+                    {
+                        isListRendered ?
                         <>
+                            {
+                                province && (
+                                    <>
+                                        <div>
+                                        <div className="flex justify-between items-end">
+                                            <h2 className="text-2xl">Governor</h2>
+                                                <span className="text-sm opacity-60">Vote 1</span>
+                                            </div>
+                                            <div className="flex flex-col gap-2 mt-3">
+                                                {
+                                                    governors.map((g) => (
+                                                        <CandidateRow
+                                                            key={g.id}
+                                                            add={selectGovernor} 
+                                                            remove={removeGovernor}
+                                                            details={g}
+                                                            isSelected={selectedGovernor != undefined && selectedGovernor?.ballot_name === g.ballot_name}
+                                                        />
+                                                    ))
+                                                }
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div className="flex justify-between items-end mt-6">
+                                                <h2 className="text-2xl">Vice-Governor</h2>
+                                                <span className="text-sm opacity-60">Vote 1</span>
+                                            </div>
+                                            <div className="flex flex-col gap-2 mt-3">
+                                                {
+                                                    viceGovernors.map((vg) => (
+                                                        <CandidateRow
+                                                            key={vg.id}
+                                                            add={selectViceGovernor} 
+                                                            remove={removeViceGovernor}
+                                                            details={vg}
+                                                            isSelected={selectedViceGovernor != undefined && selectedViceGovernor?.ballot_name === vg.ballot_name}
+                                                        />
+                                                    ))
+                                                }
+                                            </div>
+                                        </div>
+                                    </>
+                                )
+                            }
                             <div>
-                                <div className="flex justify-between items-end">
-                                    <h2 className="text-2xl">Governor</h2>
+                                <div className="flex justify-between items-end mt-6">
+                                    <h2 className="text-2xl">Mayor</h2>
                                     <span className="text-sm opacity-60">Vote 1</span>
                                 </div>
                                 <div className="flex flex-col gap-2 mt-3">
                                     {
-                                        governors.map((g) => (
+                                        mayors.map((m) => (
                                             <CandidateRow
-                                                key={g.id}
-                                                add={selectGovernor} 
-                                                remove={removeGovernor}
-                                                details={g}
-                                                isSelected={selectedGovernor != undefined && selectedGovernor?.ballot_name === g.ballot_name}
+                                                key={m.id}
+                                                add={selectMayor} 
+                                                remove={removeMayor}
+                                                details={m}
+                                                isSelected={selectedMayor != undefined && selectedMayor?.ballot_name === m.ballot_name}
                                             />
                                         ))
                                     }
@@ -596,328 +651,296 @@ export default function Page() {
                             </div>
                             <div>
                                 <div className="flex justify-between items-end mt-6">
-                                    <h2 className="text-2xl">Vice-Governor</h2>
+                                    <h2 className="text-2xl">Vice-Mayor</h2>
                                     <span className="text-sm opacity-60">Vote 1</span>
                                 </div>
                                 <div className="flex flex-col gap-2 mt-3">
                                     {
-                                        viceGovernors.map((vg) => (
+                                        viceMayors.map((vm) => (
                                             <CandidateRow
-                                                key={vg.id}
-                                                add={selectViceGovernor} 
-                                                remove={removeViceGovernor}
-                                                details={vg}
-                                                isSelected={selectedViceGovernor != undefined && selectedViceGovernor?.ballot_name === vg.ballot_name}
+                                                key={vm.id}
+                                                add={selectViceMayor} 
+                                                remove={removeViceMayor}
+                                                details={vm}
+                                                isSelected={selectedViceMayor != undefined && selectedViceMayor?.ballot_name === vm.ballot_name}
+                                            />
+                                        ))
+                                    }
+                                </div>
+                            </div>
+                            <div>
+                                <div className="flex justify-between items-end mt-6">
+                                    <h2 className="text-2xl">Representative</h2>
+                                    <span className="text-sm opacity-60">Vote 1</span>
+                                </div>
+                                <div className="flex flex-col gap-2 mt-3">
+                                {
+                                    representatives.map((rm) => (
+                                        <CandidateRow
+                                            key={rm.id}
+                                            add={selectRepresentative} 
+                                            remove={removeRepresentative}
+                                            details={rm}
+                                            isSelected={selectedRepresentative != undefined && selectedRepresentative?.ballot_name === rm.ballot_name}
+                                        />
+                                    ))
+                                }
+                                </div>
+                            </div>
+                            {
+                            province && (
+                                    <div>
+                                        <div className="flex justify-between items-end mt-6">
+                                            <h2 className="text-2xl">Provincial Board</h2>
+                                            <span className="text-sm opacity-60">Vote 2</span>
+                                        </div>
+                                        <div className="flex flex-col gap-2 mt-3">
+                                            {
+                                                provincialBoard && provincialBoard.map((vm) => (
+                                                    <CandidateRow
+                                                        key={vm.id}
+                                                        add={selectProvincialBoardMember} 
+                                                        remove={removeProvincialBoardMember}
+                                                        details={vm}
+                                                        isSelected={selectedProvincialBoard != undefined && selectedProvincialBoard.filter(pb => pb.ballot_name === vm.ballot_name).length !== 0}
+                                                    />
+                                                ))
+                                            }
+                                        </div>
+                                    </div>
+                                )
+                            }
+                            <div>
+                                <div className="flex justify-between items-end mt-6">
+                                    <h2 className="text-2xl">Councilors</h2>
+                                    <span className="text-sm opacity-60">Vote 6</span>
+                                </div>
+                                <div className="flex flex-col gap-2 mt-3">
+                                    {
+                                        councilors.map((c) => (
+                                            <CandidateRow
+                                                key={c.id}
+                                                add={selectCouncilor} 
+                                                remove={removeCouncilor}
+                                                details={c}
+                                                isSelected={selectedCouncilors.filter((sc) => sc.ballot_name === c.ballot_name).length !== 0}
                                             />
                                         ))
                                     }
                                 </div>
                             </div>
                         </>
-                    )
-                }
-                <div>
-                    <div className="flex justify-between items-end mt-6">
-                        <h2 className="text-2xl">Mayor</h2>
-                        <span className="text-sm opacity-60">Vote 1</span>
-                    </div>
-                    <div className="flex flex-col gap-2 mt-3">
-                        {
-                            mayors.map((m) => (
-                                <CandidateRow
-                                    key={m.id}
-                                    add={selectMayor} 
-                                    remove={removeMayor}
-                                    details={m}
-                                    isSelected={selectedMayor != undefined && selectedMayor?.ballot_name === m.ballot_name}
-                                />
-                            ))
-                        }
-                    </div>
-                </div>
-                <div>
-                    <div className="flex justify-between items-end mt-6">
-                        <h2 className="text-2xl">Vice-Mayor</h2>
-                        <span className="text-sm opacity-60">Vote 1</span>
-                    </div>
-                    <div className="flex flex-col gap-2 mt-3">
-                        {
-                            viceMayors.map((vm) => (
-                                <CandidateRow
-                                    key={vm.id}
-                                    add={selectViceMayor} 
-                                    remove={removeViceMayor}
-                                    details={vm}
-                                    isSelected={selectedViceMayor != undefined && selectedViceMayor?.ballot_name === vm.ballot_name}
-                                />
-                            ))
-                        }
-                    </div>
-                </div>
-                <div>
-                    <div className="flex justify-between items-end mt-6">
-                        <h2 className="text-2xl">Representative</h2>
-                        <span className="text-sm opacity-60">Vote 1</span>
-                    </div>
-                    <div className="flex flex-col gap-2 mt-3">
-                        {
-                            representatives.map((rm) => (
-                                <CandidateRow
-                                    key={rm.id}
-                                    add={selectRepresentative} 
-                                    remove={removeRepresentative}
-                                    details={rm}
-                                    isSelected={selectedRepresentative != undefined && selectedRepresentative?.ballot_name === rm.ballot_name}
-                                />
-                            ))
-                        }
-                    </div>
-                </div>
-                {
-                    province && (
-                        <div>
-                            <div className="flex justify-between items-end mt-6">
-                                <h2 className="text-2xl">Provincial Board</h2>
-                                <span className="text-sm opacity-60">Vote 2</span>
-                            </div>
-                            <div className="flex flex-col gap-2 mt-3">
-                                {
-                                    provincialBoard && provincialBoard.map((vm) => (
-                                        <CandidateRow
-                                            key={vm.id}
-                                            add={selectProvincialBoardMember} 
-                                            remove={removeProvincialBoardMember}
-                                            details={vm}
-                                            isSelected={selectedProvincialBoard != undefined && selectedProvincialBoard.filter(pb => pb.ballot_name === vm.ballot_name).length !== 0}
-                                        />
-                                    ))
-                                }
-                            </div>
+                        :
+                        (
+                        <div className="flex flex-col items-center justify-center w-full h-[10vh]">
+                            <LoadingSpinner className="size-12"></LoadingSpinner>
                         </div>
-                    )
-                }
-                <div>
-                    <div className="flex justify-between items-end mt-6">
-                        <h2 className="text-2xl">Councilors</h2>
-                        <span className="text-sm opacity-60">Vote 6</span>
-                    </div>
-                    <div className="flex flex-col gap-2 mt-3">
-                        {
-                            councilors.map((c) => (
-                                <CandidateRow
-                                    key={c.id}
-                                    add={selectCouncilor} 
-                                    remove={removeCouncilor}
-                                    details={c}
-                                    isSelected={selectedCouncilors.filter((sc) => sc.ballot_name === c.ballot_name).length !== 0}
-                                />
-                            ))
-                        }
-                    </div>
-                </div>
+                        )
+                    }
                 <Dialog defaultOpen={isLocationModalOpen} open={isLocationModalOpen} onOpenChange={(open) => setLocationModalOpen(open)}>
-                    <DialogTrigger asChild>
-                        <Button onClick={() => setLocationModalOpen(true)} className="text-lg !w-full mt-10">Change Location</Button>
-                    </DialogTrigger>
-                    <DialogContent  className="w-11/12">
-                        <DialogTitle>Select your location</DialogTitle>
-                            <Form {...locationForm}>
-                                <form onSubmit={locationForm.handleSubmit(onSubmit)}>
-                                    <FormField 
-                                        control={locationForm.control}
-                                        name="region"
-                                        render={({field}) => (
-                                            <FormItem>
-                                                <FormLabel>Region</FormLabel>
-                                                <Select onValueChange={(val) => {
-                                                    field.onChange(val);
-                                                    locationForm.setValue("region", val);
-                                                    onRegionChange(val);
-                                                }} defaultValue={region ?? undefined}>
-                                                    <FormControl>
-                                                        <SelectTrigger className="w-full">
-                                                            <SelectValue placeholder="Select Region"/>
-                                                        </SelectTrigger>    
-                                                    </FormControl>
-                                                    <SelectContent>
-                                                        {
-                                                            regions.map((r) => (
-                                                                <SelectItem key={r.code} value={r.code}>{r.name}</SelectItem>
-                                                            ))
-                                                        }
-                                                    </SelectContent>
-                                                </Select>    
-                                            </FormItem>
-                                        )}
-                                    ></FormField>
-                                    <FormField control={locationForm.control}
-                                        name="province"
-                                        render={({field}) => (
-                                            <FormItem>
-                                                <FormLabel>Province</FormLabel>
-                                                <Select  onValueChange={(val) => {
-                                                    field.onChange(val);
-                                                    locationForm.setValue("province", val);
-                                                    onProvinceChange(val);
-                                                }} defaultValue={province ?? undefined} disabled={!regionSelected || isNcrPicked}>
-                                                    <FormControl>
-                                                        <SelectTrigger className="w-full ">
-                                                            <SelectValue placeholder="Select Province"/>
-                                                        </SelectTrigger>    
+                        <DialogTrigger asChild>
+                            <Button onClick={() => setLocationModalOpen(true)} className="text-lg !w-full mt-10">Change Location</Button>
+                        </DialogTrigger>
+                        <DialogContent  className="w-11/12">
+                            <DialogTitle>Select your location</DialogTitle>
+                                <Form {...locationForm}>
+                                    <form onSubmit={locationForm.handleSubmit(onSubmit)}>
+                                        <FormField 
+                                            control={locationForm.control}
+                                            name="region"
+                                            render={({field}) => (
+                                                <FormItem>
+                                                    <FormLabel>Region</FormLabel>
+                                                    <Select 
+                                                    onValueChange={(val) => {
+                                                        field.onChange(val);
+                                                        locationForm.setValue("region", val);
+                                                        onRegionChange(val);
+                                                    }} defaultValue={region ?? undefined}>
+                                                        <FormControl className="">
+                                                            <SelectTrigger className="w-full overflow-x-hidden">
+                                                                <SelectValue placeholder="Select Region"/>
+                                                            </SelectTrigger>    
                                                         </FormControl>
                                                         <SelectContent>
                                                             {
-                                                                provincesList.map((r) => (
-                                                                    <SelectItem key={r.id} value={r.name}>{r.name}</SelectItem>
+                                                                regions.map((r) => (
+                                                                    <SelectItem key={r.code} value={r.code}>{r.name}</SelectItem>
                                                                 ))
                                                             }
                                                         </SelectContent>
-                                                </Select>    
-                                            </FormItem>
-                                        )}
-                                    ></FormField>
-                                    <FormField control={locationForm.control}
-                                        name="lgu"
-                                        render={({field}) => (
-                                            <FormItem>
-                                                <FormLabel>City or Municipality</FormLabel>
-                                                <Select  onValueChange={(val) => {
-                                                    field.onChange(val);
-                                                    locationForm.setValue("lgu", val);
-                                                    onLGUChange(val);
-                                                }} defaultValue={lgu ?? undefined}  disabled={!provinceSelected && !isNcrPicked}>
-                                                    <FormControl>
-                                                        <SelectTrigger className="w-full ">
-                                                            <SelectValue placeholder="Select City or Municipality"/>
-                                                        </SelectTrigger>    
-                                                        </FormControl>
-                                                        <SelectContent>
-                                                            {
-                                                                lgus && lgus.lgus.map((r) => (
-                                                                    <SelectItem key={r.id} value={r.name}>{r.name}</SelectItem>
-                                                                ))
-                                                            }
-                                                        </SelectContent>
-                                                </Select>    
-                                            </FormItem>
-                                        )}
-                                    ></FormField>
-                                    <FormField control={locationForm.control}
-                                        name="legislativeDistrict"
-                                        render={({field}) => (
-                                            <FormItem>
-                                                <FormLabel>{hasLocalRepresentatives ? "Legislative District (Local)" : "Legislative District " + `(Provincial)`}</FormLabel>
-                                                <Select  onValueChange={(val) => {
-                                                    field.onChange(parseInt(val));
-                                                    locationForm.setValue("legislativeDistrict", parseInt(val));
-                                                    setLegislativeDistrict(parseInt(val))
-                                                }} defaultValue={lgu !== undefined && legislativeDistrict !== undefined ? legislativeDistrict.toString() : undefined} disabled={!lguSelected}>
-                                                    <FormControl>
-                                                        <SelectTrigger className="w-full ">
-                                                            <SelectValue placeholder="Select City or Municipality"/>
-                                                        </SelectTrigger>    
-                                                        </FormControl>
-                                                        <SelectContent>
-                                                            {
-                                                                !newLgu ?
-                                                                    <></>
-                                                                    :
-                                                                    hasLocalRepresentatives === true ?
-                                                                    Array.from(Array(legislativeDistrictCount).keys()).map((num) => {
-                                                                        console.log(num+1);
-                                                                        const treatedNum = num+1;
+                                                    </Select>    
+                                                </FormItem>
+                                            )}
+                                        ></FormField>
+                                        <FormField control={locationForm.control}
+                                            name="province"
+                                            render={({field}) => (
+                                                <FormItem>
+                                                    <FormLabel>Province</FormLabel>
+                                                    <Select  onValueChange={(val) => {
+                                                        field.onChange(val);
+                                                        locationForm.setValue("province", val);
+                                                        onProvinceChange(val);
+                                                    }} defaultValue={province ?? undefined} disabled={!regionSelected || isNcrPicked}>
+                                                        <FormControl>
+                                                            <SelectTrigger className="w-full ">
+                                                                <SelectValue placeholder="Select Province"/>
+                                                            </SelectTrigger>    
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {
+                                                                    provincesList.map((r) => (
+                                                                        <SelectItem key={r.id} value={r.name}>{r.name}</SelectItem>
+                                                                    ))
+                                                                }
+                                                            </SelectContent>
+                                                    </Select>    
+                                                </FormItem>
+                                            )}
+                                        ></FormField>
+                                        <FormField control={locationForm.control}
+                                            name="lgu"
+                                            render={({field}) => (
+                                                <FormItem>
+                                                    <FormLabel>City or Municipality</FormLabel>
+                                                    <Select  onValueChange={(val) => {
+                                                        field.onChange(val);
+                                                        locationForm.setValue("lgu", val);
+                                                        onLGUChange(val);
+                                                    }} defaultValue={lgu ?? undefined}  disabled={!provinceSelected && !isNcrPicked}>
+                                                        <FormControl>
+                                                            <SelectTrigger className="w-full ">
+                                                                <SelectValue placeholder="Select City or Municipality"/>
+                                                            </SelectTrigger>    
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {
+                                                                    lgus && lgus.lgus.map((r) => (
+                                                                        <SelectItem key={r.id} value={r.name}>{r.name}</SelectItem>
+                                                                    ))
+                                                                }
+                                                            </SelectContent>
+                                                    </Select>    
+                                                </FormItem>
+                                            )}
+                                        ></FormField>
+                                        <FormField control={locationForm.control}
+                                            name="legislativeDistrict"
+                                            render={({field}) => (
+                                                <FormItem>
+                                                    <FormLabel>{hasLocalRepresentatives ? "Legislative District (Local)" : "Legislative District " + `(Provincial)`}</FormLabel>
+                                                    <Select  onValueChange={(val) => {
+                                                        field.onChange(parseInt(val));
+                                                        locationForm.setValue("legislativeDistrict", parseInt(val));
+                                                        setLegislativeDistrict(parseInt(val))
+                                                    }} defaultValue={lgu !== undefined && legislativeDistrict !== undefined ? legislativeDistrict.toString() : undefined} disabled={!lguSelected}>
+                                                        <FormControl>
+                                                            <SelectTrigger className="w-full ">
+                                                                <SelectValue placeholder="Select City or Municipality"/>
+                                                            </SelectTrigger>    
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {
+                                                                    !newLgu ?
+                                                                        <></>
+                                                                        :
+                                                                        hasLocalRepresentatives === true ?
+                                                                        Array.from(Array(legislativeDistrictCount).keys()).map((num) => {
+                                                                            console.log(num+1);
+                                                                            const treatedNum = num+1;
+                                                                                return (
+                                                                                <SelectItem key={treatedNum} value={treatedNum.toString()}>{treatedNum}</SelectItem>
+                                                                            );
+                                                                        })
+                                                                        :
+                                                                        Array.from(Array(provinceLegislativeDistrictCount).keys()).map((num) => {
+                                                                            const treatedNum = num+1;
                                                                             return (
-                                                                            <SelectItem key={treatedNum} value={treatedNum.toString()}>{treatedNum}</SelectItem>
-                                                                        );
-                                                                    })
-                                                                    :
-                                                                    Array.from(Array(provinceLegislativeDistrictCount).keys()).map((num) => {
-                                                                        const treatedNum = num+1;
-                                                                        return (
-                                                                            <SelectItem key={treatedNum} value={treatedNum.toString()}>{treatedNum}</SelectItem>
-                                                                        );
-                                                                    })
-                                                            }
-                                                        </SelectContent>
-                                                </Select>    
-                                            </FormItem>
-                                        )}
-                                    ></FormField>
-                                    <FormField control={locationForm.control}
-                                        name="provincialDistrict"
-                                        render={({field}) => (
-                                            <FormItem>
-                                                <FormLabel>Provincial District (Board)</FormLabel>
-                                                <Select  onValueChange={(val) => {
-                                                    field.onChange(parseInt(val));
-                                                    locationForm.setValue("provincialDistrict", parseInt(val));
-                                                    setProvincialDistrict(parseInt(val))
-                                                }} defaultValue={lgu !== undefined && provincialDistrict !== undefined ? provincialDistrict.toString() : undefined} disabled={!lguSelected || (isNcrPicked)}>
-                                                    <FormControl>
-                                                        <SelectTrigger className="w-full ">
-                                                            <SelectValue placeholder="Select City or Municipality"/>
-                                                        </SelectTrigger>    
-                                                        </FormControl>
-                                                        <SelectContent>
-                                                            {
-                                                                !newLgu ?
-                                                                    <></>
-                                                                    :
-                                                                    Array.from(Array(provinceDistrictCount).keys()).map((num) => {
-                                                                        const treatedNum = num+1;
-                                                                        return (
-                                                                            <SelectItem key={treatedNum} value={treatedNum.toString()}>{treatedNum}</SelectItem>
-                                                                        );
-                                                                    })
-                                                                
-                                                            }
-                                                        </SelectContent>
-                                                </Select>    
-                                            </FormItem>
-                                        )}
-                                    ></FormField>
-                                    <FormField control={locationForm.control}
-                                        name="councilorDistrict"
-                                        render={({field}) => (
-                                            <FormItem>
-                                                <FormLabel>Councilor District</FormLabel>
-                                                <Select  onValueChange={(val) => {
-                                                    field.onChange(parseInt(val));
-                                                    locationForm.setValue("councilorDistrict", parseInt(val));
-                                                    setCouncilorDistrict(parseInt(val))
-                                                }} defaultValue={lgu !== undefined && councilorDistrict !== undefined ? councilorDistrict.toString() : undefined} value={lgu !== undefined && councilorDistrict !== undefined ? councilorDistrict.toString() : undefined} disabled={!lguSelected}>
-                                                    <FormControl>
-                                                        <SelectTrigger className="w-full ">
-                                                            <SelectValue placeholder="Select City or Municipality"/>
-                                                        </SelectTrigger>    
-                                                        </FormControl>
-                                                        <SelectContent>
-                                                            {
-                                                                !newLgu ?
-                                                                    <></>
-                                                                    :
-                                                                    Array.from(Array(councilorDistrictCount).keys()).map((num) => {
-                                                                        const treatedNum = num+1;
-                                                                        return (
-                                                                            <SelectItem key={treatedNum} value={treatedNum.toString()}>{treatedNum}</SelectItem>
-                                                                        );
-                                                                    })
-                                                                
-                                                            }
-                                                        </SelectContent>
-                                                </Select>    
-                                            </FormItem>
-                                        )}
-                                    ></FormField>
-                                    <Button type="submit" className="mt-4 w-full !bg-yellow-500 !rounded-xl">Select Location</Button>
-                                </form>
-                            </Form>
-                        <div>                        
-                    </div>
-                    </DialogContent>
+                                                                                <SelectItem key={treatedNum} value={treatedNum.toString()}>{treatedNum}</SelectItem>
+                                                                            );
+                                                                        })
+                                                                }
+                                                            </SelectContent>
+                                                    </Select>    
+                                                </FormItem>
+                                            )}
+                                        ></FormField>
+                                        <FormField control={locationForm.control}
+                                            name="provincialDistrict"
+                                            render={({field}) => (
+                                                <FormItem>
+                                                    <FormLabel>Provincial District (Board)</FormLabel>
+                                                    <Select  onValueChange={(val) => {
+                                                        field.onChange(parseInt(val));
+                                                        locationForm.setValue("provincialDistrict", parseInt(val));
+                                                        setProvincialDistrict(parseInt(val))
+                                                    }} defaultValue={lgu !== undefined && provincialDistrict !== undefined ? provincialDistrict.toString() : undefined} disabled={!lguSelected || (isNcrPicked)}>
+                                                        <FormControl>
+                                                            <SelectTrigger className="w-full ">
+                                                                <SelectValue placeholder="Select City or Municipality"/>
+                                                            </SelectTrigger>    
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {
+                                                                    !newLgu ?
+                                                                        <></>
+                                                                        :
+                                                                        Array.from(Array(provinceDistrictCount).keys()).map((num) => {
+                                                                            const treatedNum = num+1;
+                                                                            return (
+                                                                                <SelectItem key={treatedNum} value={treatedNum.toString()}>{treatedNum}</SelectItem>
+                                                                            );
+                                                                        })
+                                                                    
+                                                                }
+                                                            </SelectContent>
+                                                    </Select>    
+                                                </FormItem>
+                                            )}
+                                        ></FormField>
+                                        <FormField control={locationForm.control}
+                                            name="councilorDistrict"
+                                            render={({field}) => (
+                                                <FormItem>
+                                                    <FormLabel>Councilor District</FormLabel>
+                                                    <Select  onValueChange={(val) => {
+                                                        field.onChange(parseInt(val));
+                                                        locationForm.setValue("councilorDistrict", parseInt(val));
+                                                        setCouncilorDistrict(parseInt(val))
+                                                    }} defaultValue={newLgu !== undefined && councilorDistrict !== undefined ? councilorDistrict.toString() : undefined} disabled={!lguSelected}>
+                                                        <FormControl>
+                                                            <SelectTrigger className="w-full ">
+                                                                <SelectValue placeholder="Select City or Municipality"/>
+                                                            </SelectTrigger>    
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {
+                                                                    !newLgu ?
+                                                                        <></>
+                                                                        :
+                                                                        Array.from(Array(councilorDistrictCount).keys()).map((num) => {
+                                                                            const treatedNum = num+1;
+                                                                            return (
+                                                                                <SelectItem key={treatedNum} value={treatedNum.toString()}>{treatedNum}</SelectItem>
+                                                                            );
+                                                                        })
+                                                                    
+                                                                }
+                                                            </SelectContent>
+                                                    </Select>    
+                                                </FormItem>
+                                            )}
+                                        ></FormField>
+                                        <Button type="submit" className="mt-4 w-full !bg-yellow-500 !rounded-xl">Select Location</Button>
+                                    </form>
+                                </Form>
+                            <div>                        
+                        </div>
+                        </DialogContent>
                 </Dialog>
+                </>
             </div>
-            
         </div>
     );
 }
