@@ -5,6 +5,7 @@ import {useState, useEffect} from "react";
 import { db } from "../../../db/db.model";
 import { Senator } from "@/models/senator";
 import { LocalCandidate } from "@/models/LocalCandidate";
+import { Separator } from "@/components/ui/separator";
 
 interface CandidateRowProps {
     name: string;
@@ -88,6 +89,41 @@ export default function Page() {
     }
     
     const removeLocalCandidate = async (id:string) => {
+        const candidates = localCandidates.filter(lc => lc.id === id);
+
+        // check if candidate is empty
+        if (candidates.length === 0) {
+            return;
+        }
+
+        // get first
+        const candidate = candidates[0];
+        console.log(candidate)
+
+        switch (candidate.position) {
+            case "GOVERNOR":
+                setGovernor(undefined);
+                break;
+            case "VICE-GOVERNOR":
+                setViceGovernor(undefined);
+                break;
+            case "PROVINCIAL BOARD MEMBER":
+                setProvincialBoardMembers(provincialBoardMembers.filter(lc => lc.id !== id));
+                break;
+            case "MAYOR":
+                setMayor(undefined);
+                break;
+            case "VICE-MAYOR":
+                setViceMayor(undefined);
+                break;
+            case "COUNCILOR":
+                setCouncilors(councilors.filter(lc => lc.id !== id));
+                break;
+            case "REPRESENTATIVE":
+                setRepresentative(undefined);
+                break;
+        }
+
         setLocalCandidates(localCandidates.filter(lc => lc.id !== id));
         await db.localCandidates.delete(id);
     }
@@ -148,7 +184,13 @@ export default function Page() {
                                 }
                             </div>
                     }
+                    {
+                        senators.length < 12 && (
+                            <p className="text-center mt-2">{12-senators.length} slot{12-senators.length === 11 ? "" : "s"} left. Add <a href="/senators" className="text-yellow-500">here</a>.</p>
+                        )
+                    }
                 </div>
+                <Separator className="mt-6 bg-gray-300" />
                 <div className="mt-3">
                     <h2 className="text-2xl">Partylist</h2>
                     <div>
@@ -165,6 +207,7 @@ export default function Page() {
                         }
                     </div>
                 </div>
+                <Separator className="mt-6 bg-gray-300" />
                 <div className="mt-3">
                     <h2 className="text-2xl">Local Positions</h2>
                     {
