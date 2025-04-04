@@ -89,6 +89,38 @@ export default function Page() {
     
     const removeLocalCandidate = async (id:string) => {
         setLocalCandidates(localCandidates.filter(lc => lc.id !== id));
+
+        const removedCandidate = localCandidates.find((lc) => lc.id === id);
+        if (removedCandidate) {
+            switch (removedCandidate.position) {
+            case "GOVERNOR":
+                setGovernor(undefined);
+                break;
+            case "VICE-GOVERNOR":
+                setViceGovernor(undefined);
+                break;
+            case "PROVINCIAL BOARD MEMBER":
+            case "PROVINCIAL_COUNCIL":
+                setProvincialBoardMembers(
+                    provincialBoardMembers.filter((pbm) => pbm.id !== id)
+                );
+                break;
+            case "MAYOR":
+                setMayor(undefined);
+                break;
+            case "VICE-MAYOR":
+                setViceMayor(undefined);
+                break;
+            case "COUNCILOR":
+                setCouncilors(councilors.filter((c) => c.id !== id));
+                break;
+            case "REPRESENTATIVE":
+            case "DISTRICT_REPRESENTATIVE":
+                setRepresentative(undefined);
+                break;
+            }
+        }
+
         await db.localCandidates.delete(id);
     }
 
