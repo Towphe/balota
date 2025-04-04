@@ -165,6 +165,10 @@ export default function Page() {
                     <h1 className="w-full text-4xl text-justify">Your Balota</h1>
                     <button onClick={() => setIsEditToggled(!isEditToggled)} type="button" className="opacity-60 text-lg">{isEditToggled ? "Back" : "Edit"}</button>
                 </div>
+                <div className="flex flex-col items-end">
+                    <button type="button" className="bg-green-600 w-full py-1 mt-2 rounded-xl text-white font-semibold hover:cursor-not-allowed opacity-60" disabled>Download my Balota</button>
+                    <span className="text-xs text-gray-500 mr-2">Feature coming soon</span>
+                </div>
                 <div className="mt-3">
                     <h2 className="text-2xl">Senators</h2>
                     {
