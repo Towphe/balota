@@ -64,13 +64,13 @@ export async function GET(request:NextRequest) {
     const representatives = localRepresentatives.length > 0 ? localCandidates.filter((pc) => pc.position === 'REPRESENTATIVE') : provincialCandidates.filter((pc) => pc.position === 'DISTRICT_REPRESENTATIVE' && pc.district == legislativeDistirct);
 
     return NextResponse.json({
-        governors: provincialCandidates.filter((pc) => pc.position === 'GOVERNOR'),
-        viceGovernors: provincialCandidates.filter((pc) => pc.position === 'VICE-GOVERNOR'),
-        provincialBoard: provincialBoard,
-        representatives: representatives.filter((r) => r.district === parseInt(legislativeDistirct ?? "0")),
-        mayors: localCandidates.filter((lc) => lc.position === 'MAYOR'),
-        viceMayors: localCandidates.filter((lc) => lc.position === 'VICE-MAYOR'),
-        councilors: localCandidates.filter((lc) => lc.position === 'COUNCILOR' && lc.district === parseInt(councilorDistrict ?? "1")),
+        governors: provincialCandidates.filter((pc) => pc.position === 'GOVERNOR').sort((a,b) => a.ballot_number - b.ballot_number),
+        viceGovernors: provincialCandidates.filter((pc) => pc.position === 'VICE-GOVERNOR').sort((a,b) => a.ballot_number - b.ballot_number),
+        provincialBoard: provincialBoard.sort((a,b) => a.ballot_number - b.ballot_number),
+        representatives: representatives.filter((r) => r.district === parseInt(legislativeDistirct ?? "0")).sort((a,b) => a.ballot_number - b.ballot_number),
+        mayors: localCandidates.filter((lc) => lc.position === 'MAYOR').sort((a,b) => a.ballot_number - b.ballot_number),
+        viceMayors: localCandidates.filter((lc) => lc.position === 'VICE-MAYOR').sort((a,b) => a.ballot_number - b.ballot_number),
+        councilors: localCandidates.filter((lc) => lc.position === 'COUNCILOR' && lc.district === parseInt(councilorDistrict ?? "1")).sort((a,b) => a.ballot_number - b.ballot_number),
         hasOwnRepresentatives: localCandidates.filter((pc) => pc.position === 'REPRESENTATIVE').length > 0,
         hasOwnProvincialRepresentatives: localCandidates.filter((pc) => pc.position === 'PROVINCIAL_COUNCIL' && pc.district == provincialDistrict).length,
     });
