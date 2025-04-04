@@ -421,10 +421,6 @@ export default function Page() {
     }
     
     const selectCouncilor = (councilor: LocalCandidate) => {
-        if (selectedCouncilors.length === 6) {
-            // aleady full
-            return;
-        }
         setSelectedCouncilors([...selectedCouncilors, councilor]);
         
         db.localCandidates.add(councilor, councilor.id);
@@ -592,7 +588,7 @@ export default function Page() {
                                         <div>
                                         <div className="flex justify-between items-end">
                                             <h2 className="text-2xl">Governor</h2>
-                                                <span className="text-sm opacity-60">Vote 1</span>
+                                                <span className="text-sm opacity-60">Pick 1</span>
                                             </div>
                                             <div className="flex flex-col gap-2 mt-3">
                                                 {
@@ -611,7 +607,7 @@ export default function Page() {
                                         <div>
                                             <div className="flex justify-between items-end mt-6">
                                                 <h2 className="text-2xl">Vice-Governor</h2>
-                                                <span className="text-sm opacity-60">Vote 1</span>
+                                                <span className="text-sm opacity-60">Pick 1</span>
                                             </div>
                                             <div className="flex flex-col gap-2 mt-3">
                                                 {
@@ -633,7 +629,7 @@ export default function Page() {
                             <div>
                                 <div className="flex justify-between items-end mt-6">
                                     <h2 className="text-2xl">Mayor</h2>
-                                    <span className="text-sm opacity-60">Vote 1</span>
+                                    <span className="text-sm opacity-60">Pick 1</span>
                                 </div>
                                 <div className="flex flex-col gap-2 mt-3">
                                     {
@@ -652,7 +648,7 @@ export default function Page() {
                             <div>
                                 <div className="flex justify-between items-end mt-6">
                                     <h2 className="text-2xl">Vice-Mayor</h2>
-                                    <span className="text-sm opacity-60">Vote 1</span>
+                                    <span className="text-sm opacity-60">Pick 1</span>
                                 </div>
                                 <div className="flex flex-col gap-2 mt-3">
                                     {
@@ -671,7 +667,7 @@ export default function Page() {
                             <div>
                                 <div className="flex justify-between items-end mt-6">
                                     <h2 className="text-2xl">Representative</h2>
-                                    <span className="text-sm opacity-60">Vote 1</span>
+                                    <span className="text-sm opacity-60">Pick 1</span>
                                 </div>
                                 <div className="flex flex-col gap-2 mt-3">
                                 {
@@ -692,7 +688,7 @@ export default function Page() {
                                     <div>
                                         <div className="flex justify-between items-end mt-6">
                                             <h2 className="text-2xl">Provincial Board</h2>
-                                            <span className="text-sm opacity-60">Vote 2</span>
+                                            <span className="text-sm opacity-60">Pick 2</span>
                                         </div>
                                         <div className="flex flex-col gap-2 mt-3">
                                             {
@@ -713,7 +709,7 @@ export default function Page() {
                             <div>
                                 <div className="flex justify-between items-end mt-6">
                                     <h2 className="text-2xl">Councilors</h2>
-                                    <span className="text-sm opacity-60">Vote 6</span>
+                                    <span className="text-sm opacity-60">Pick</span>
                                 </div>
                                 <div className="flex flex-col gap-2 mt-3">
                                     {
