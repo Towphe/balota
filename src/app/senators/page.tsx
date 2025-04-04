@@ -456,7 +456,7 @@ export default function Page() {
             if (!open) setSelectedSenatorsModalOpen(false);
           }}>
             <DialogContent  className="w-11/12">
-              <DialogTitle>You&aposve already got your 12</DialogTitle>
+              <DialogTitle>You&apos;ve already got your 12</DialogTitle>
               <DialogDescription>You previously selected the following:</DialogDescription>
               <ul className="full px-4">
                 {
