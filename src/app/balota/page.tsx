@@ -189,7 +189,7 @@ export default function Page() {
                             </div>
                     }
                     {
-                        senators.length < 12 && (
+                        senators.length < 12 && senators.length > 0 && (
                             <p className="text-center mt-2">{12-senators.length} slot{12-senators.length === 11 ? "" : "s"} left. Add <a href="/senators" className="text-yellow-500">here</a>.</p>
                         )
                     }
