@@ -134,6 +134,8 @@ export default function Page() {
   }
 
   useEffect(() => {
+    console.log(page);
+    console.log(Math.ceil(totalSenators/count));
     retrieveSenators();
   }, [page, order, sortBy, order, name])
 
@@ -400,6 +402,15 @@ export default function Page() {
                     </TableRow>
                   ))
                 }
+                {
+                  senators.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center">
+                        <p className="text-gray-500 my-4">No senators found.</p>
+                      </TableCell>
+                    </TableRow>
+                  )
+                }
               </TableBody>
             </Table>
             <Pagination>
@@ -426,7 +437,7 @@ export default function Page() {
                 </PaginationItem>
               }
               {
-                page > Math.ceil(totalSenators/count) ? <></> :
+                page >= Math.ceil(totalSenators/count) ? <></> :
                 <PaginationItem>
                   <PaginationLink href={`/senators?p=${page === 1 ? 3 : page + 1}${sortBy && `&sb=${sortBy}`}${sortBy && `&o=${order}`}${name !== null ? `&f=${name}` : ""}`} isActive={page > Math.ceil(totalSenators/count)}>
                     {page === 1 ? 3 : page + 1}
