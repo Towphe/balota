@@ -10,6 +10,9 @@
 
 </div>
 
+![image](https://github.com/user-attachments/assets/0daef657-2668-49d4-9c6d-6bd8daa4d2eb)
+
+
 ## 📋 About
 
 With the 2025 Philippine Midterm Elections approaching, finding the right candidates to vote for is crucial. **Balota** simplifies this journey!
