@@ -1,14 +1,56 @@
-# Balota
+# 🗳️ Balota
 
-With the 2025 Philippine Midterm Elections coming closer, finding candidates to vote becomes more and more crucial. [Balota](https://balota.vercel.app) simplifies this.
+<div align="center">
 
-Balota is a web-based, AI-powered ballot generator, allowing browsing of candidates in national and local positions; getting background information of candidates - highlighting any past scandals; and allowing for ballot personalization by providing interface for adding and removing candidates to vote for. 
+![Balota Logo](https://img.shields.io/badge/🗳️-Balota-blue?style=for-the-badge)
 
-Balota is built with Next.JS, Shadcn, TailwindCSS and PostgreSQL. The database is hosted in Supabase whilst the application is hosted in Vercel.
+**Your AI-Powered Philippine Election Companion**
 
-You may access the application here: https://balota.vercel.app.
+[✨ Live Demo](https://balota.vercel.app) | [📑 Report Issue](https://github.com/yourusername/balota/issues) | [🤝 Contribute](#contributing)
 
-Candidate information is scraped from COMELEC's list of candidates found [here](https://comelec.gov.ph/?r=2025NLE/CLC2025).
+</div>
 
-My Python scripts for extracting candidates may be found below:
-https://github.com/Towphe/comelec-candidates-extractor
+## 📋 About
+
+With the 2025 Philippine Midterm Elections approaching, finding the right candidates to vote for is crucial. **Balota** simplifies this journey!
+
+Balota is a web-based, AI-powered ballot generator designed to help Filipino voters make informed decisions through:
+
+- 🔍 **Comprehensive Candidate Browsing** - Explore candidates in both national and local positions
+- 📊 **Background Information** - Get detailed profiles on candidates, including past experience and controversies
+- ⚠️ **Scandal Highlighting** - Easily identify candidates involved in past scandals
+- 📝 **Personalized Ballot Creation** - Add and remove candidates to create your personalized voting plan
+
+## 🚀 Quick Start
+
+1. Visit [Balota](https://balota.vercel.app)
+2. Browse candidates by position or location
+3. Click on candidates to view their detailed profiles
+4. Add preferred candidates to your personalized ballot
+5. Print or save your ballot for reference on election day
+
+## 🛠️ Tech Stack
+
+- **Frontend:** [Next.js](https://nextjs.org/), [React](https://reactjs.org/), [TailwindCSS](https://tailwindcss.com/)
+- **UI Components:** [Shadcn/ui](https://ui.shadcn.com/)
+- **Database:** PostgreSQL via [Supabase](https://supabase.com/)
+- **Hosting:** [Vercel](https://vercel.com)
+- **Data Source:** Candidate data is scraped from the official [COMELEC candidate list](https://comelec.gov.ph/?r=2025NLE/CLC2025)
+
+## 📊 Data Collection
+
+Candidate information is gathered using custom Python scripts from the official COMELEC list of candidates.
+
+🔗 **Python Extractor Scripts:** [github.com/Towphe/comelec-candidates-extractor](https://github.com/Towphe/comelec-candidates-extractor)
+
+## 🤝 Contributing
+
+Contributions are welcome! Whether it's improving the UI, adding new features, or enhancing data accuracy, your help is appreciated.
+
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+---
+
+Made with ❤️ by [Towphe](https://github.com/Towphe)
