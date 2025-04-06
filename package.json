@@ -27,7 +27,7 @@
     "dexie": "^4.0.11",
     "dexie-react-hooks": "^1.1.7",
     "lucide-react": "^0.476.0",
-    "next": "15.1.7",
+    "next": "^15.2.4",
     "openai": "^4.86.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
