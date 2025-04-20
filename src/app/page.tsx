@@ -15,7 +15,7 @@ export default function Home() {
             <Link href="/balota">
               <Button className="w-[13rem] rounded-xl bg-[#1357BE] !py-1">Generate Ballot</Button>
             </Link>
-            <DropdownMenu>
+            {/* <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button className="w-[13rem] rounded-xl bg-white text-black !py-1 shadow-md focus:bg-white">View Candidates</Button>
               </DropdownMenuTrigger>
@@ -43,7 +43,7 @@ export default function Home() {
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
-            </DropdownMenu>
+            </DropdownMenu> */}
             <Link href="/voters-education">
               <Button className="w-[13rem] rounded-xl bg-yellow-500 !py-1">Voter&apos;s Education</Button>
             </Link>
