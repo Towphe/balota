@@ -7,6 +7,7 @@ import { DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialo
 import { Select, SelectContent, SelectGroup, SelectLabel, SelectTrigger, SelectValue, SelectItem } from "@/components/ui/select";
 import { Dialog } from "@radix-ui/react-dialog";
 import { useEffect, useState } from "react";
+import { db } from "../../../db/db.model";
 
 interface Province {
     province_id: string;
@@ -23,6 +24,8 @@ interface LGU {
 }
 
 interface Candidate {
+    lgu_id:string;
+    province_id:string|undefined;
     candidate_id: string;
     ballot_number: number;
     ballot_name: string;
@@ -144,8 +147,32 @@ export default function Page() {
         setLocalPositionsLoaded(true);
     }
 
-    useEffect(() => {
+    const loadSavedNationalCandidates = async () => {
+        const candidates = await db.candidates.toArray();
 
+        setSelectedSenators(candidates.filter(c => c.position === "SENATOR"));
+        
+        const partylists = candidates.filter(c => c.position === "PARTYLIST");
+        if (partylists.length === 0) return;
+
+        setSelectedPartylist(partylists[0]);
+    }
+
+    const loadSavedLocalCandidates = async () => {
+        const candidates = await db.candidates.toArray();
+
+        setSelectedRepresentative(candidates.find(c => c.position === "MEMBER, HOUSE OF REPRESENTATIVES") as Candidate);
+        setSelectedGovernor(candidates.find(c => c.position === "PROVINCIAL GOVERNOR"));
+        setSelectedViceGovernor(candidates.find(c => c.position === "PROVINCIAL VICE-GOVERNOR"));
+        setSelectedMayor(candidates.find(c => c.position === "MAYOR"));
+        setSelectedViceMayor(candidates.find(c => c.position === "VICE-MAYOR"));
+        setSelectedProvincialBoardMembers(candidates.filter(c => c.position === "MEMBER, SANGGUNIANG PANLALAWIGAN"));
+        setSelectedCouncilors(candidates.filter(c => c.position === "LGU_COUNCIL"));
+        setSelectedBarmmBoardMember(candidates.find(c => c.position === "BARMM MEMBERS OF THE PARLIAMENT"));
+        setSelectedBarmmParty(candidates.find(c => c.position === "BARMM PARTY REPRESENTATIVES"));
+    }
+
+    useEffect(() => {
         const region = localStorage.getItem("region");
         const province = localStorage.getItem("province");
         const lguId = localStorage.getItem("lguId");
@@ -153,12 +180,13 @@ export default function Page() {
         retrieveNationalPositions();
         setNationalPositionsLoaded(true);
 
+        loadSavedNationalCandidates();
+
         if (!region || !lguId) return; // short circuit
         
-        loadLocationOptions(region, province, lguId);
+        loadSavedLocalCandidates();
 
-        // load releveant lgus under province
-        // if (province) loadSavedProvince(province, lguId);
+        loadLocationOptions(region, province, lguId);
             
         // retrieve local candidates
         loadSavedLocalPositions(lguId);
@@ -287,6 +315,16 @@ export default function Page() {
         setSelectedLgu(lgus.find(lgu => lgu.lgu_id === newLguId));
     }
 
+    const clearLocalPositions = async () => {
+        const candidates = await db.candidates.toArray();
+
+        const filteredCandidates = candidates.filter(c => c.position !== "SENATOR" && c.position !== "PARTYLIST");
+
+        for (const candidate of filteredCandidates) {
+            db.candidates.delete(candidate.candidate_id);
+        }
+    }
+
     const onClear = () => {
         setLgus([]);
         setProvinces([]);
@@ -301,6 +339,9 @@ export default function Page() {
         setCouncilors([]);
         setBarmmPartyMembers([]);
         setBarmmParliamentMembers([]);
+        setProvincialBoardMembers([]);
+
+        clearLocalPositions();
 
         // remove options saved in localStorage
         localStorage.removeItem("region");
@@ -318,6 +359,7 @@ export default function Page() {
         if (isOverseas) {
             res = await fetch("/api/candidates");
         } else {
+            clearLocalPositions();
             if (!selectedLgu) {
                 // show warning
                 return;
@@ -348,168 +390,193 @@ export default function Page() {
         if (selectedLgu) localStorage.setItem("lguId", selectedLgu.lgu_id);
     }
 
-    const onSenatorSelect = (event: React.ChangeEvent<HTMLInputElement>, senator: Candidate) => {
-        if (event.target.checked === true && selectedSenators.length === 12) {
+    const onSenatorSelect = (event: React.MouseEvent<HTMLInputElement>, senator: Candidate) => {
+        if (selectedSenators.length === 12 && !selectedSenators.find(s => s.candidate_id === senator.candidate_id)) {
             event.preventDefault();
             event.stopPropagation();
             return;
         }
-
-        if (event.target.checked === false) {
+        
+        if (selectedSenators.find(s => s.candidate_id === senator.candidate_id) !== undefined) {
             setSelectedSenators(selectedSenators.filter(s => s.candidate_id != senator.candidate_id));
+            db.candidates.delete(senator.candidate_id);
             return;
         }
-
+        
         setSelectedSenators([...selectedSenators, senator]);
+        db.candidates.add(senator as Candidate, senator.candidate_id);
     }
 
-    const onPartylistSelect = (event: React.ChangeEvent<HTMLInputElement>, partylist:Candidate) => {
-        if (event.target.checked === true && selectedPartylist !== undefined){
+    const onPartylistSelect = (event: React.MouseEvent<HTMLInputElement>, partylist:Candidate) => {
+        // console.log(event.target.checked);
+        // console.log(selectedPartylist);
+
+        if (selectedPartylist !== undefined && partylist.candidate_id !== selectedPartylist.candidate_id){
             event.preventDefault();
             event.stopPropagation();
             return;
         }
 
-        if (event.target.checked === false) {
+        if (selectedPartylist) {
             setSelectedPartylist(undefined);
+            db.candidates.delete(partylist.candidate_id);
             return;
         }
 
         setSelectedPartylist(partylist);
+        db.candidates.add(partylist as Candidate, partylist.candidate_id);
     }
 
-    const onRepresentativeSelect = (event: React.ChangeEvent<HTMLInputElement>, representative:Candidate) => {
-        if (event.target.checked === true && selectedRepresentative !== undefined){
+    const onRepresentativeSelect = (event: React.MouseEvent<HTMLInputElement>, representative:Candidate) => {
+        if (selectedRepresentative !== undefined && selectedRepresentative.candidate_id !== representative.candidate_id){
             event.preventDefault();
             event.stopPropagation();
             return;
         }
 
-        if (event.target.checked === false) {
+        if (selectedRepresentative) {
             setSelectedRepresentative(undefined);
+            db.candidates.delete(representative.candidate_id);
             return;
         }
 
+        db.candidates.add(representative, representative.candidate_id);
         setSelectedRepresentative(representative);
     }
 
-    const onGovernorSelect = (event: React.ChangeEvent<HTMLInputElement>, governor:Candidate) => {
-        if (event.target.checked === true && selectedGovernor !== undefined){
+    const onGovernorSelect = (event: React.MouseEvent<HTMLInputElement>, governor:Candidate) => {
+        if (selectedGovernor !== undefined && selectedGovernor.candidate_id !== governor.candidate_id){
             event.preventDefault();
             event.stopPropagation();
             return;
         }
 
-        if (event.target.checked === false) {
+        if (selectedGovernor) {
             setSelectedGovernor(undefined);
+            db.candidates.delete(governor.candidate_id);
             return;
         }
 
+        db.candidates.add(governor, governor.candidate_id);
         setSelectedGovernor(governor);
     }
 
-    const onViceGovernorSelect = (event: React.ChangeEvent<HTMLInputElement>, viceGovernor:Candidate) => {
-        if (event.target.checked === true && selectedViceGovernor !== undefined){
+    const onViceGovernorSelect = (event: React.MouseEvent<HTMLInputElement>, viceGovernor:Candidate) => {
+        if (selectedViceGovernor !== undefined && selectedViceGovernor.candidate_id !== viceGovernor.candidate_id){
             event.preventDefault();
             event.stopPropagation();
             return;
         }
 
-        if (event.target.checked === false) {
+        if (selectedViceGovernor) {
             setSelectedViceGovernor(undefined);
+            db.candidates.delete(viceGovernor.candidate_id);
             return;
         }
 
+        db.candidates.add(viceGovernor, viceGovernor.candidate_id);
         setSelectedViceGovernor(viceGovernor);
     }
 
-    const onMayorSelect = (event: React.ChangeEvent<HTMLInputElement>, mayor:Candidate) => {
-        if (event.target.checked === true && selectedMayor !== undefined){
+    const onMayorSelect = (event: React.MouseEvent<HTMLInputElement>, mayor:Candidate) => {
+        if (selectedMayor !== undefined && selectedMayor.candidate_id !== mayor.candidate_id){
             event.preventDefault();
             event.stopPropagation();
             return;
         }
 
-        if (event.target.checked === false) {
+        if (selectedMayor) {
             setSelectedMayor(undefined);
+            db.candidates.delete(mayor.candidate_id);
             return;
         }
 
+        db.candidates.add(mayor, mayor.candidate_id);
         setSelectedMayor(mayor);
     }
 
-    const onViceMayorSelect = (event: React.ChangeEvent<HTMLInputElement>, viceMayor:Candidate) => {
-        if (event.target.checked === true && selectedViceMayor !== undefined){
+    const onViceMayorSelect = (event: React.MouseEvent<HTMLInputElement>, viceMayor:Candidate) => {
+        if (selectedViceMayor !== undefined && selectedViceMayor.candidate_id !== viceMayor.candidate_id){
             event.preventDefault();
             event.stopPropagation();
             return;
         }
 
-        if (event.target.checked === false) {
+        if (selectedViceMayor) {
             setSelectedViceMayor(undefined);
+            db.candidates.delete(viceMayor.candidate_id);
             return;
         }
 
+        db.candidates.add(viceMayor, viceMayor.candidate_id);
         setSelectedViceMayor(viceMayor);
     }
 
-    const onCouncilorSelect = (event: React.ChangeEvent<HTMLInputElement>, councilor: Candidate) => {
-        if (event.target.checked === true && selectedCouncilors.length === 6) {
+    const onCouncilorSelect = (event: React.MouseEvent<HTMLInputElement>, councilor: Candidate) => {
+        if (selectedCouncilors.length === 6 && !selectedCouncilors.find(s => s.candidate_id === councilor.candidate_id)) {
             event.preventDefault();
             event.stopPropagation();
             return;
         }
 
-        if (event.target.checked === false) {
+        if (selectedCouncilors.find(s => s.candidate_id === councilor.candidate_id) !== undefined) {
             setSelectedCouncilors(selectedCouncilors.filter(s => s.candidate_id != councilor.candidate_id));
+            db.candidates.delete(councilor.candidate_id);
             return;
         }
 
+        db.candidates.add(councilor, councilor.candidate_id);
         setSelectedCouncilors([...selectedCouncilors, councilor]);
     };
 
-    const onProvincialBoardSelect = (event: React.ChangeEvent<HTMLInputElement>, provincialBoardMember: Candidate) => {
-        if (event.target.checked === true && selectedProvincialBoardMembers.length === selectedLgu?.max_provincial_board) {
+    const onProvincialBoardSelect = (event: React.MouseEvent<HTMLInputElement>, provincialBoardMember: Candidate) => {
+        if (selectedProvincialBoardMembers.length === selectedLgu?.max_provincial_board && !selectedProvincialBoardMembers.find(s => s.candidate_id === provincialBoardMember.candidate_id)) {
             event.preventDefault();
             event.stopPropagation();
             return;
         }
 
-        if (event.target.checked === false) {
+        if (selectedProvincialBoardMembers.find(s => s.candidate_id === provincialBoardMember.candidate_id)) {
             setSelectedProvincialBoardMembers(selectedProvincialBoardMembers.filter(s => s.candidate_id != provincialBoardMember.candidate_id));
+            db.candidates.delete(provincialBoardMember.candidate_id);
             return;
         }
 
+        db.candidates.add(provincialBoardMember, provincialBoardMember.candidate_id);
         setSelectedProvincialBoardMembers([...selectedProvincialBoardMembers, provincialBoardMember]);
     };
 
-    const onBarmmPartylistSelect = (event: React.ChangeEvent<HTMLInputElement>, barmmPartylist:Candidate) => {
-        if (event.target.checked === true && selectedBarmmParty !== undefined){
+    const onBarmmPartylistSelect = (event: React.MouseEvent<HTMLInputElement>, barmmPartylist:Candidate) => {
+        if (selectedBarmmParty !== undefined && selectedBarmmParty.candidate_id !== barmmPartylist.candidate_id){
             event.preventDefault();
             event.stopPropagation();
             return;
         }
 
-        if (event.target.checked === false) {
+        if (selectedBarmmParty) {
             setSelectedBarmmParty(undefined);
+            db.candidates.delete(barmmPartylist.candidate_id);
             return;
         }
 
+        db.candidates.add(barmmPartylist, barmmPartylist.candidate_id);
         setSelectedBarmmParty(barmmPartylist);
     }
 
-    const onBarmmParliamentMemberSelect = (event: React.ChangeEvent<HTMLInputElement>, barmmParliamentMember:Candidate) => {
-        if (event.target.checked === true && selectedBarmmBoardMember !== undefined){
+    const onBarmmParliamentMemberSelect = (event: React.MouseEvent<HTMLInputElement>, barmmParliamentMember:Candidate) => {
+        if (selectedBarmmBoardMember !== undefined && selectedBarmmBoardMember.candidate_id !== barmmParliamentMember.candidate_id){
             event.preventDefault();
             event.stopPropagation();
             return;
         }
 
-        if (event.target.checked === false) {
+        if (selectedBarmmBoardMember) {
             setSelectedBarmmBoardMember(undefined);
+            db.candidates.delete(barmmParliamentMember.candidate_id);
             return;
         }
 
+        db.candidates.add(barmmParliamentMember, barmmParliamentMember.candidate_id);
         setSelectedBarmmBoardMember(barmmParliamentMember);
     }
 
@@ -618,7 +685,7 @@ export default function Page() {
                                     {
                                         senators.map(candidate => 
                                             <div className="flex justify-start items-start gap-1" key={candidate.candidate_id}>
-                                                <input disabled={selectedSenators.length > 12 && !selectedSenators.includes(candidate)} className="mt-1 rounded-full" type="checkbox" onChange={(e) => onSenatorSelect(e, candidate)}/> 
+                                                <input disabled={selectedSenators.length > 12 && !selectedSenators.includes(candidate)} className="mt-1 rounded-full" type="checkbox" onClick={(e) => onSenatorSelect(e, candidate)} defaultChecked={selectedSenators.filter(c => c.candidate_id === candidate.candidate_id).length > 0}/> 
                                                 <CandidatePopup details={candidate} onAdd={() => {}} onRemove={() => {}} isVoted={selectedSenators.includes(candidate)} />
                                             </div>
                                         )
@@ -633,9 +700,8 @@ export default function Page() {
                                     {
                                         partylists.map(candidate => 
                                             <div className="flex justify-start items-start gap-1" key={candidate.candidate_id}>
-                                                <input className="mt-1" type="checkbox" onChange={(e) => onPartylistSelect(e, candidate)} />
+                                                <input className="mt-1" type="checkbox" onClick={(e) => onPartylistSelect(e, candidate)} defaultChecked={selectedPartylist && selectedPartylist.candidate_id === candidate.candidate_id} />
                                                 <CandidatePopup details={candidate} onAdd={() => {}} onRemove={() => {}} isVoted={selectedPartylist?.candidate_id === candidate.candidate_id} />
-                                                {/* <label className="text-sm">{candidate.ballot_number}. {candidate.ballot_name}</label> */}
                                             </div>
                                         )
                                     }
@@ -663,7 +729,7 @@ export default function Page() {
                                     {
                                         representatives.map(candidate => 
                                             <div className="flex justify-start items-start gap-1" key={candidate.candidate_id}>
-                                                <input className="mt-1" type="checkbox" onChange={(e) => onRepresentativeSelect(e, candidate)} />
+                                                <input className="mt-1" type="checkbox" onClick={(e) => onRepresentativeSelect(e, candidate)} defaultChecked={selectedRepresentative && selectedRepresentative.candidate_id === candidate.candidate_id} />
                                                 <CandidatePopup details={candidate} onAdd={() => {}} onRemove={() => {}} isVoted={selectedRepresentative?.candidate_id === candidate.candidate_id} />
                                                 {/* <label className="text-sm">{candidate.ballot_number}. {candidate.ballot_name}</label> */}
                                             </div>
@@ -681,8 +747,8 @@ export default function Page() {
                                     {
                                         governors.map((candidate:Candidate) => 
                                             <div className="flex justify-start items-start gap-1" key={candidate.candidate_id}>
-                                                <input className="mt-1" type="checkbox" onChange={(e) => onGovernorSelect(e, candidate)} />
-                                                <CandidatePopup details={candidate} onAdd={() => {}} onRemove={() => {}} isVoted={selectedGovernor?.candidate_id === candidate.candidate_id} />
+                                                <input className="mt-1" type="checkbox" onClick={(e) => onGovernorSelect(e, candidate)} defaultChecked={selectedGovernor && selectedGovernor.candidate_id === candidate.candidate_id} />
+                                                <CandidatePopup details={candidate} onAdd={() => {}} onRemove={() => {}} isVoted={selectedGovernor?.candidate_id === candidate.candidate_id}  />
                                                 {/* <label className="text-sm">{candidate.ballot_number}. {candidate.ballot_name}</label> */}
                                             </div>
                                         )
@@ -699,7 +765,7 @@ export default function Page() {
                                     {
                                         viceGovernors.map(candidate => 
                                             <div className="flex justify-start items-start gap-1" key={candidate.candidate_id}>
-                                                <input className="mt-1" type="checkbox" onChange={(e) => onViceGovernorSelect(e, candidate)} />
+                                                <input className="mt-1" type="checkbox" onClick={(e) => onViceGovernorSelect(e, candidate)} defaultChecked={selectedViceGovernor && selectedViceGovernor.candidate_id === candidate.candidate_id} />
                                                 <CandidatePopup details={candidate} onAdd={() => {}} onRemove={() => {}} isVoted={selectedViceGovernor?.candidate_id === candidate.candidate_id} />
                                                 {/* <label className="text-sm">{candidate.ballot_number}. {candidate.ballot_name}</label> */}
                                             </div>
@@ -718,7 +784,7 @@ export default function Page() {
                                             {
                                                 provincialBoardMembers.map(candidate => 
                                                     <div className="flex justify-start items-start gap-1" key={candidate.candidate_id}>
-                                                        <input disabled={selectedProvincialBoardMembers.length > 12 && !selectedProvincialBoardMembers.includes(candidate)} className="mt-1 rounded-full" type="checkbox" onChange={(e) => onProvincialBoardSelect(e, candidate)}/> 
+                                                        <input disabled={selectedProvincialBoardMembers.length > 12 && !selectedProvincialBoardMembers.includes(candidate)} className="mt-1 rounded-full" type="checkbox" onClick={(e) => onProvincialBoardSelect(e, candidate)} defaultChecked={selectedProvincialBoardMembers.filter(pb => pb.candidate_id === candidate.candidate_id).length > 0}/> 
                                                         <CandidatePopup details={candidate} onAdd={() => {}} onRemove={() => {}} isVoted={selectedProvincialBoardMembers.includes(candidate)} />
                                                     </div>
                                                 )
@@ -736,7 +802,7 @@ export default function Page() {
                                     {
                                         mayors.map(candidate => 
                                             <div className="flex justify-start items-start gap-1" key={candidate.candidate_id}>
-                                                <input className="mt-1" type="checkbox" onChange={(e) => onMayorSelect(e, candidate)} />
+                                                <input className="mt-1" type="checkbox" onClick={(e) => onMayorSelect(e, candidate)} defaultChecked={selectedMayor && selectedMayor.candidate_id === candidate.candidate_id} />
                                                 <CandidatePopup details={candidate} onAdd={() => {}} onRemove={() => {}} isVoted={selectedMayor?.candidate_id === candidate.candidate_id} />
                                                 {/* <label className="text-sm">{candidate.ballot_number}. {candidate.ballot_name}</label> */}
                                             </div>
@@ -754,7 +820,7 @@ export default function Page() {
                                     {
                                         viceMayors.map(candidate => 
                                             <div className="flex justify-start items-start gap-1" key={candidate.candidate_id}>
-                                                <input className="mt-1" type="checkbox" onChange={(e) => onViceMayorSelect(e, candidate)} />
+                                                <input className="mt-1" type="checkbox" onClick={(e) => onViceMayorSelect(e, candidate)} defaultChecked={selectedViceMayor && selectedViceMayor.candidate_id === candidate.candidate_id} />
                                                 <CandidatePopup details={candidate} onAdd={() => {}} onRemove={() => {}} isVoted={selectedViceMayor?.candidate_id === candidate.candidate_id} />
                                             </div>
                                         )
@@ -772,7 +838,7 @@ export default function Page() {
                                             {
                                                 councilors.map(candidate => 
                                                     <div className="flex justify-start items-start gap-1" key={candidate.candidate_id}>
-                                                        <input disabled={selectedCouncilors.length > 12 && !selectedCouncilors.includes(candidate)} className="mt-1 rounded-full" type="checkbox" onChange={(e) => onCouncilorSelect(e, candidate)}/> 
+                                                        <input disabled={selectedCouncilors.length > 12 && !selectedCouncilors.includes(candidate)} className="mt-1 rounded-full" type="checkbox" onClick={(e) => onCouncilorSelect(e, candidate)} defaultChecked={selectedCouncilors.filter(c => c.candidate_id === candidate.candidate_id).length > 0}/> 
                                                         <CandidatePopup details={candidate} onAdd={() => {}} onRemove={() => {}} isVoted={selectedCouncilors.includes(candidate)} />
                                                     </div>
                                                 )
@@ -791,7 +857,7 @@ export default function Page() {
                                             {
                                                 barmmPartyMembers.map(candidate => 
                                                     <div className="flex justify-start items-start gap-1" key={candidate.candidate_id}>
-                                                        <input disabled={selectedCouncilors.length > 12 && !selectedCouncilors.includes(candidate)} className="mt-1 rounded-full" type="checkbox" onChange={(e) => onBarmmPartylistSelect(e, candidate)}/> 
+                                                        <input disabled={selectedCouncilors.length > 12 && !selectedCouncilors.includes(candidate)} className="mt-1 rounded-full" type="checkbox" onClick={(e) => onBarmmPartylistSelect(e, candidate)} defaultChecked={selectedBarmmParty && selectedBarmmParty.candidate_id === candidate.candidate_id}/> 
                                                         <CandidatePopup details={candidate} onAdd={() => {}} onRemove={() => {}} isVoted={selectedBarmmParty?.candidate_id === candidate.candidate_id} />
                                                     </div>
                                                 )
@@ -810,7 +876,7 @@ export default function Page() {
                                             {
                                                 barmmParliamentMembers.map(candidate => 
                                                     <div className="flex justify-start items-start gap-1" key={candidate.candidate_id}>
-                                                        <input disabled={selectedCouncilors.length > 12 && !selectedCouncilors.includes(candidate)} className="mt-1 rounded-full" type="checkbox" onChange={(e) => onBarmmParliamentMemberSelect(e, candidate)}/> 
+                                                        <input disabled={selectedCouncilors.length > 12 && !selectedCouncilors.includes(candidate)} className="mt-1 rounded-full" type="checkbox" onClick={(e) => onBarmmParliamentMemberSelect(e, candidate)} defaultChecked={selectedBarmmBoardMember && selectedBarmmBoardMember.candidate_id === candidate.candidate_id}/> 
                                                         <CandidatePopup details={candidate} onAdd={() => {}} onRemove={() => {}} isVoted={selectedBarmmBoardMember?.candidate_id === candidate.candidate_id} />
                                                     </div>
                                                 )
