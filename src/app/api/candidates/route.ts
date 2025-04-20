@@ -60,16 +60,14 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json({
-        senators: nationalPositions.filter(np => np.position === "SENATOR"),
-        partylists: nationalPositions.filter(np => np.position === "PARTYLIST"),
-        governors: provincialCandidates.filter(pc => pc.position === "PROVINCIAL GOVERNOR"),
-        viceGovernors: provincialCandidates.filter(pc => pc.position === "PROVINCIAL VICE-GOVERNOR"),
-        provincialBaordMembers: localCandidates.filter(pc => pc.position === "MEMBER, SANGGUNIANG PANLALAWIGAN"),
-        representatives: localCandidates.filter(pc => pc.position === "MEMBER, HOUSE OF REPRESENTATIVES"),
-        mayors: localCandidates.filter(pc => pc.position === "MAYOR"),
-        viceMayors: localCandidates.filter(pc => pc.position === "VICE-MAYOR"),
-        lguCouncil: localCandidates.filter(pc => pc.position === "LGU_COUNCIL"),
-        barmmRep: localCandidates.filter(pc => pc.position === "BARMM PARTY REPRESENTATIVES"),
-        barmmParliament: localCandidates.filter(pc => pc.position === "BARMM MEMBERS OF THE PARLIAMENT")
+        governors: provincialCandidates.filter(pc => pc.position === "PROVINCIAL GOVERNOR").sort((a,b) => a.ballot_number - b.ballot_number),
+        viceGovernors: provincialCandidates.filter(pc => pc.position === "PROVINCIAL VICE-GOVERNOR").sort((a,b) => a.ballot_number - b.ballot_number),
+        provincialBoardMembers: localCandidates.filter(pc => pc.position === "MEMBER, SANGGUNIANG PANLALAWIGAN").sort((a,b) => a.ballot_number - b.ballot_number),
+        representatives: localCandidates.filter(pc => pc.position === "MEMBER, HOUSE OF REPRESENTATIVES").sort((a,b) => a.ballot_number - b.ballot_number),
+        mayors: localCandidates.filter(pc => pc.position === "MAYOR").sort((a,b) => a.ballot_number - b.ballot_number),
+        viceMayors: localCandidates.filter(pc => pc.position === "VICE-MAYOR").sort((a,b) => a.ballot_number - b.ballot_number),
+        lguCouncil: localCandidates.filter(pc => pc.position === "LGU_COUNCIL").sort((a,b) => a.ballot_number - b.ballot_number),
+        barmmRep: localCandidates.filter(pc => pc.position === "BARMM PARTY REPRESENTATIVES").sort((a,b) => a.ballot_number - b.ballot_number),
+        barmmParliament: localCandidates.filter(pc => pc.position === "BARMM MEMBERS OF THE PARLIAMENT").sort((a,b) => a.ballot_number - b.ballot_number),
     });
 }
