@@ -28,6 +28,7 @@ model lgu {
   region               String?
   province_id          String?     @db.Uuid
   max_provincial_board Int?
+  max_lgu_council      Int?        @default(0)
   candidate            candidate[]
   province             province?   @relation(fields: [province_id], references: [province_id], onDelete: NoAction, onUpdate: NoAction)
 }
