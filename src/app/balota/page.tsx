@@ -6,8 +6,10 @@ import { Button } from "@/components/ui/button";
 import { DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectGroup, SelectLabel, SelectTrigger, SelectValue, SelectItem } from "@/components/ui/select";
 import { Dialog } from "@radix-ui/react-dialog";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { db } from "../../../db/db.model";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 
 interface Province {
     province_id: string;
@@ -113,6 +115,10 @@ export default function Page() {
     const [isLGUsLoaded, setLGUsLoaded] = useState<boolean>(true);
     const [isNationalPositionsLoaded, setNationalPositionsLoaded] = useState<boolean>(false);
     const [isLocalPositionsLoaded, setLocalPositionsLoaded] = useState<boolean>(true);
+
+    // state for search
+    const [partylistSearch, setPartylistSearch] = useState<string>("");
+    const [senatorSearch, setSenatorSearch] = useState<string>("");
 
     const retrieveNationalPositions = async () => {
         const res = await fetch("/api/candidates");
@@ -681,9 +687,13 @@ export default function Page() {
                             <AccordionItem value="senators">
                                 <AccordionTrigger className="text-lg" >Senators</AccordionTrigger>
                                 <AccordionContent className="w-full">
+                                    <div className="w-full relative">
+                                        <Input type="text" placeholder="Enter senator name" onChange={(e:ChangeEvent<HTMLInputElement>) => setSenatorSearch(e.target.value)} />
+                                        <Search className="absolute right-3 top-1.5" />
+                                    </div>
                                     <div className="w-full grid grid-cols-2 py-3 lg:grid-cols-3">
                                     {
-                                        senators.map(candidate => 
+                                        senators.filter(s => s.ballot_name.includes(senatorSearch.toLocaleUpperCase())).map(candidate => 
                                             <div className="flex justify-start items-start gap-1" key={candidate.candidate_id}>
                                                 <input disabled={selectedSenators.length > 12 && !selectedSenators.includes(candidate)} className="mt-1 rounded-full" type="checkbox" onClick={(e) => onSenatorSelect(e, candidate)} defaultChecked={selectedSenators.filter(c => c.candidate_id === candidate.candidate_id).length > 0}/> 
                                                 <CandidatePopup details={candidate} onAdd={() => {}} onRemove={() => {}} isVoted={selectedSenators.includes(candidate)} />
@@ -696,9 +706,13 @@ export default function Page() {
                             <AccordionItem value="partylists">
                                 <AccordionTrigger className="text-lg" >Partylists</AccordionTrigger>
                                 <AccordionContent className="w-full">
+                                    <div className="w-full relative">
+                                        <Input type="text" placeholder="Enter partylist name" onChange={(e:ChangeEvent<HTMLInputElement>) => setPartylistSearch(e.target.value)} />
+                                        <Search className="absolute right-3 top-1.5" />
+                                    </div>
                                     <div className="w-full grid grid-cols-2 py-3 lg:grid-cols-3">
                                     {
-                                        partylists.map(candidate => 
+                                        partylists.filter(p => p.ballot_name.includes(partylistSearch.toLocaleUpperCase())).map(candidate => 
                                             <div className="flex justify-start items-start gap-1" key={candidate.candidate_id}>
                                                 <input className="mt-1" type="checkbox" onClick={(e) => onPartylistSelect(e, candidate)} defaultChecked={selectedPartylist && selectedPartylist.candidate_id === candidate.candidate_id} />
                                                 <CandidatePopup details={candidate} onAdd={() => {}} onRemove={() => {}} isVoted={selectedPartylist?.candidate_id === candidate.candidate_id} />
