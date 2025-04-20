@@ -6,10 +6,11 @@ import { Button } from "@/components/ui/button";
 import { DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectGroup, SelectLabel, SelectTrigger, SelectValue, SelectItem } from "@/components/ui/select";
 import { Dialog } from "@radix-ui/react-dialog";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { db } from "../../../db/db.model";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { toPng } from "html-to-image";
 
 interface Province {
     province_id: string;
@@ -23,6 +24,7 @@ interface LGU {
     province_name: string|undefined;
     region: string|undefined;
     max_provincial_board: number|undefined;
+    max_lgu_council: number|undefined;
 }
 
 interface Candidate {
@@ -519,7 +521,7 @@ export default function Page() {
     }
 
     const onCouncilorSelect = (event: React.MouseEvent<HTMLInputElement>, councilor: Candidate) => {
-        if (selectedCouncilors.length === 6 && !selectedCouncilors.find(s => s.candidate_id === councilor.candidate_id)) {
+        if (selectedCouncilors.length === selectedLgu?.max_lgu_council && !selectedCouncilors.find(s => s.candidate_id === councilor.candidate_id)) {
             event.preventDefault();
             event.stopPropagation();
             return;
@@ -585,6 +587,22 @@ export default function Page() {
         db.candidates.add(barmmParliamentMember, barmmParliamentMember.candidate_id);
         setSelectedBarmmBoardMember(barmmParliamentMember);
     }
+
+    const hiddenRef = useRef<HTMLDivElement>(null);
+
+    const handleExport = async () => {
+      if (!hiddenRef.current) return;
+  
+      try {
+        const dataUrl = await toPng(hiddenRef.current, {skipFonts: true});
+        const link = document.createElement('a');
+        link.href = dataUrl;
+        link.download = 'balota.png';
+        link.click();
+      } catch (err) {
+        console.error('Export failed', err);
+      }
+    };
 
     return (
         <div className="h-full flex flex-col items-center justify-start py-6">
@@ -846,7 +864,7 @@ export default function Page() {
                             {
                                 (councilors.length > 0 && !isOverseas) && (
                                     <AccordionItem value="councilors">
-                                        <AccordionTrigger className="text-lg" >Councilors</AccordionTrigger>
+                                        <AccordionTrigger className="text-lg" >Councilors ({selectedLgu?.max_lgu_council})</AccordionTrigger>
                                         <AccordionContent className="w-full">
                                             <div className="w-full grid grid-cols-2 py-3 lg:grid-cols-3">
                                             {
@@ -912,8 +930,145 @@ export default function Page() {
                     
                 </Accordion>
                 <div className="w-full mt-6">
-                    <Button className="w-full bg-[#37c443] opacity-65 font-semibold hover:cursor-not-allowed hover:bg-[#37c443]" color="success" disabled>Export</Button>
+                    <Button type="button" onClick={handleExport} className="w-full bg-[#37c443] font-semibold  hover:bg-[#37c443]" color="success">Export</Button>
                     <p className="text-xs opacity-70">Export feature coming soon</p>
+                </div>
+                <div className="h-full w-screen bg-white absolute top-0 left-0 z-[-10]">
+                </div>
+                
+                {/* generated ballot is hidden within */}
+                <div
+                    ref={hiddenRef}
+                    style={{
+                        fontFamily: 'Arial, sans-serif',
+                    }}
+                    className="bg-white flex w-[600px] flex-col gap-2 border-2 p-4 absolute top-0 left-0 z-[-30]">
+                    <div className="flex items-end justify-between">
+                        <div className="flex gap-2 items-center">
+                            <img src="balota-logo.png" className="w-8" />
+                            <h1 className="block w-3/5 text-2xl font-bold">Balota</h1>
+                        </div>
+                        <p className="block text-right text-xs">Generate yours at balota.vercel.app</p>
+                    </div>
+                    <div>
+                        <div>
+                        <h2 className="text-lg font-semibold">Senators</h2>
+                        <div className="grid grid-cols-2">
+                            {
+                                selectedSenators.map(s => (
+                                    <p key={s.candidate_id}>{s.ballot_number} {s.ballot_name}</p>
+                                ))
+                            }
+                            {
+                                Array.from({length: 12-selectedSenators.length}, (_,i) => <p key={`s${i}`}>Free Slot</p>)
+                            }
+                        </div>
+                        </div>
+                        <div className="grid grid-cols-2">
+                        <div>
+                            <h2 className="text-lg font-semibold">Partylists</h2>
+                            <p>{selectedPartylist ? `${selectedPartylist.ballot_number} ${selectedPartylist.ballot_name}` : "Free Slot"}</p>
+                        </div>
+                        {
+                            !isOverseas && (
+                                <>
+                                    <div>
+                                        <h2 className="text-lg font-semibold">Representative</h2>
+                                        <p>{selectedRepresentative ? `${selectedRepresentative.ballot_number} ${selectedRepresentative.ballot_name}` : "Free Slot"}</p>
+                                    </div>
+                                </>
+                            )
+                        }
+                        </div>
+                        {
+                            !isOverseas && (
+                                <>
+                                {
+                                    (governors.length > 0 && viceGovernors.length > 0) && (
+                                    <div className="grid grid-cols-2">
+                                        <div>
+                                            <h2 className="text-lg font-semibold">Governor</h2>
+                                            <p>{selectedGovernor ? `${selectedGovernor.ballot_number} ${selectedGovernor.ballot_name}` : "Free Slot"}</p>
+                                        </div>
+                                        <div>
+                                            <h2 className="text-lg font-semibold">Vice-Governor</h2>
+                                            <p>{selectedViceGovernor ? `${selectedViceGovernor.ballot_number} ${selectedViceGovernor.ballot_name}` : "Free Slot"}</p>
+                                        </div>
+                                    </div>
+                                    )
+                                }
+                                {
+                                    provincialBoardMembers.length > 0 && (
+                                        <div>
+                                            <h2 className="text-lg font-semibold">Provincial Board Members</h2>
+                                            <div className="grid grid-cols-2">
+                                                {
+                                                    selectedProvincialBoardMembers.map(s => (
+                                                        <p key={s.candidate_id}>{s.ballot_number} {s.ballot_name}</p>
+                                                    ))
+                                                }
+                                                {
+                                                    selectedLgu?.max_provincial_board && (
+                                                    Array.from({length: selectedLgu.max_provincial_board-selectedProvincialBoardMembers.length}, (_,i) => <p key={`pb${i}`}>Free Slot</p>))
+                                                }
+                                            </div>
+                                        </div>
+                                    )
+                                }
+                                <div className="grid grid-cols-2">
+                                    <div>
+                                        <h2 className="text-lg font-semibold">Mayor</h2>
+                                        <p>{selectedMayor ? `${selectedMayor.ballot_number} ${selectedMayor.ballot_name}` : "Free Slot"}</p>
+                                    </div>
+                                    <div>
+                                        <h2 className="text-lg font-semibold">Vice-Mayor</h2>
+                                        <p>{selectedViceMayor ? `${selectedViceMayor.ballot_number} ${selectedViceMayor.ballot_name}` : "Free Slot"}</p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h2 className="text-lg font-semibold">Councilors</h2>
+                                    <div className="grid grid-cols-2">
+                                        {
+                                            selectedCouncilors.map(s => (
+                                                <p key={s.candidate_id}>{s.ballot_number} {s.ballot_name}</p>
+                                            ))
+                                        }
+                                        {
+                                            selectedLgu?.max_lgu_council && (
+                                            Array.from({length: selectedLgu.max_lgu_council-selectedCouncilors.length}, (_,i) => <p key={`sc${i}`}>Free Slot</p>))
+                                        }
+                                    </div>
+                                </div>
+                                </>       
+                            )
+                        }
+
+
+                        {
+                            barmmPartyMembers.length > 0 && (
+                                <div className="grid grid-cols-2">
+                                    <div>
+                                    <h2 className="text-lg font-semibold">BARMM, Partylist</h2>
+                                    {
+                                        selectedBarmmParty ? 
+                                        <p>{selectedBarmmParty.ballot_number} {selectedBarmmParty.ballot_name}</p>
+                                        :
+                                        <p>Free Slot</p>
+                                    }
+                                    </div>
+                                    <div>
+                                        <h2 className="text-lg font-semibold">BARMM, Parliament Member</h2>
+                                        {
+                                            selectedBarmmBoardMember ? 
+                                            <p>{selectedBarmmBoardMember.ballot_number} {selectedBarmmBoardMember.ballot_name}</p>
+                                            :
+                                            <p>Free Slot</p>
+                                        }
+                                    </div>
+                                </div>
+                            )
+                        }
+                    </div>
                 </div>
             </div>
         </div>
