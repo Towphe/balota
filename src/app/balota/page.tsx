@@ -691,7 +691,7 @@ export default function Page() {
                                         <Input type="text" placeholder="Enter senator name" onChange={(e:ChangeEvent<HTMLInputElement>) => setSenatorSearch(e.target.value)} />
                                         <Search className="absolute right-3 top-1.5" />
                                     </div>
-                                    <div className="w-full grid grid-cols-2 py-3 lg:grid-cols-3">
+                                    <div className="w-full grid grid-cols-2 py-3 lg:grid-cols-3 h-72 md:h-40 overflow-y-scroll">
                                     {
                                         senators.filter(s => s.ballot_name.includes(senatorSearch.toLocaleUpperCase())).map(candidate => 
                                             <div className="flex justify-start items-start gap-1" key={candidate.candidate_id}>
@@ -710,7 +710,7 @@ export default function Page() {
                                         <Input type="text" placeholder="Enter partylist name" onChange={(e:ChangeEvent<HTMLInputElement>) => setPartylistSearch(e.target.value)} />
                                         <Search className="absolute right-3 top-1.5" />
                                     </div>
-                                    <div className="w-full grid grid-cols-2 py-3 lg:grid-cols-3">
+                                    <div className="w-full grid grid-cols-2 py-3 lg:grid-cols-3 h-72 md:h-40 overflow-y-scroll">
                                     {
                                         partylists.filter(p => p.ballot_name.includes(partylistSearch.toLocaleUpperCase())).map(candidate => 
                                             <div className="flex justify-start items-start gap-1" key={candidate.candidate_id}>
