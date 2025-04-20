@@ -1,7 +1,5 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["fullTextSearchPostgres"]
-  binaryTargets   = ["native", "rhel-openssl-1.0.x"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -11,55 +9,35 @@ datasource db {
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model lgu_summary {
-  id                          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name                        String  @db.VarChar(255)
-  province_name               String? @db.VarChar(255)
-  region                      String  @db.VarChar(255)
-  total_lgu_districts         Int     @default(0)
-  total_legislative_districts Int     @default(0)
-}
-
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model local_candidate {
-  id            String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+model candidate {
+  candidate_id  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  lgu_id        String?   @db.Uuid
   ballot_number Int
-  name          String  @db.VarChar(255)
-  ballot_name   String  @db.VarChar(255)
-  sex           String  @db.Char(1)
-  position      String  @db.VarChar(100)
-  partylist     String? @db.VarChar(255)
-  lgu           String? @db.VarChar(255)
-  district      Int?
-  province      String? @db.VarChar(255)
-  background    Json?
+  ballot_name   String
+  position      String
+  province_id   String?   @db.Uuid
+  lgu           lgu?      @relation(fields: [lgu_id], references: [lgu_id], onDelete: Cascade, onUpdate: NoAction)
+  province      province? @relation(fields: [province_id], references: [province_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model partylist {
-  id            String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  ballot_name   String @db.VarChar(255)
-  ballot_number Int
-  name          String @db.VarChar(256)
-  background    Json?
+model lgu {
+  lgu_id               String      @id(map: "location_pkey") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  lgu                  String
+  province_name        String?
+  region               String?
+  province_id          String?     @db.Uuid
+  max_provincial_board Int?
+  max_lgu_council      Int?        @default(0)
+  candidate            candidate[]
+  province             province?   @relation(fields: [province_id], references: [province_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model province_summary {
-  id                         String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name                       String @db.VarChar(255)
-  region                     String @db.VarChar(255)
-  total_legislative_district Int    @default(0)
-  total_provincial_district  Int    @default(0)
-}
-
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model senator {
-  id            String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  ballot_number Int
-  name          String  @db.VarChar(256)
-  ballot_name   String  @db.VarChar(255)
-  sex           String  @db.Char(1)
-  partylist     String? @db.VarChar(255)
-  background    Json?
+model province {
+  province_id String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String
+  region      String
+  candidate   candidate[]
+  lgu         lgu[]
 }
