@@ -8,7 +8,6 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
   } from "@/components/ui/sidebar"
-import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "./ui/collapsible"
 import Link from "next/link"
   
   export function AppSidebar() {
