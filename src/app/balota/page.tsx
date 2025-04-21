@@ -880,25 +880,41 @@ export default function Page() {
                                 )
                             }
                             {
-                                barmmPartyMembers.length > 0 && (
-                                    <div className="grid grid-cols-2 gap-6">
-                                        <div className="bg-white rounded-xl shadow-md p-4">
-                                            <h2 className="text-2xl font-semibold mb-2 text-blue-800">BARMM, Partylist</h2>
-                                            {selectedBarmmParty ? 
-                                                <p className="text-lg bg-blue-50 p-2 rounded-md">{selectedBarmmParty.ballot_number}. {selectedBarmmParty.ballot_name}</p>
-                                                :
-                                                <p className="text-lg text-gray-400 bg-gray-50 p-2 rounded-md">Free Slot</p>
+                                (barmmPartyMembers.length > 0 && !isOverseas)&& (
+                                    <AccordionItem value="barmm-partylist">
+                                        <AccordionTrigger className="text-lg" >Partylist, BARMM Parliament</AccordionTrigger>
+                                        <AccordionContent className="w-full">
+                                            <div className="w-full grid grid-cols-2 py-3 lg:grid-cols-3">
+                                            {
+                                                barmmPartyMembers.map(candidate => 
+                                                    <div className="flex justify-start items-start gap-1" key={candidate.candidate_id}>
+                                                        <input disabled={selectedBarmmParty !== undefined && selectedBarmmParty.candidate_id == candidate.candidate_id} className="mt-1 rounded-full" type="checkbox" onClick={(e) => onBarmmPartylistSelect(e, candidate)} defaultChecked={selectedBarmmParty !== undefined && selectedBarmmParty.candidate_id == candidate.candidate_id}/> 
+                                                        <CandidatePopup details={candidate} onAdd={() => {}} onRemove={() => {}} isVoted={selectedBarmmParty !== undefined && selectedBarmmParty.candidate_id == candidate.candidate_id} />
+                                                    </div>
+                                                )
                                             }
-                                        </div>
-                                        <div className="bg-white rounded-xl shadow-md p-4">
-                                            <h2 className="text-2xl font-semibold mb-2 text-blue-800">BARMM, Parliament Member</h2>
-                                            {selectedBarmmBoardMember ? 
-                                                <p className="text-lg bg-blue-50 p-2 rounded-md">{selectedBarmmBoardMember.ballot_number}. {selectedBarmmBoardMember.ballot_name}</p>
-                                                :
-                                                <p className="text-lg text-gray-400 bg-gray-50 p-2 rounded-md">Free Slot</p>
+                                            </div>
+                                        </AccordionContent>
+                                    </AccordionItem>
+                                )
+                            }
+                            {
+                                (barmmParliamentMembers.length > 0 && !isOverseas)&& (
+                                    <AccordionItem value="barmm-parliament">
+                                        <AccordionTrigger className="text-lg" >Member, BARMM Parliament</AccordionTrigger>
+                                        <AccordionContent className="w-full">
+                                            <div className="w-full grid grid-cols-2 py-3 lg:grid-cols-3">
+                                            {
+                                                barmmParliamentMembers.map(candidate => 
+                                                    <div className="flex justify-start items-start gap-1" key={candidate.candidate_id}>
+                                                        <input disabled={selectedBarmmBoardMember !== undefined && selectedBarmmBoardMember.candidate_id == candidate.candidate_id} className="mt-1 rounded-full" type="checkbox" onClick={(e) => onBarmmParliamentMemberSelect(e, candidate)} defaultChecked={selectedBarmmBoardMember !== undefined && selectedBarmmBoardMember.candidate_id == candidate.candidate_id}/> 
+                                                        <CandidatePopup details={candidate} onAdd={() => {}} onRemove={() => {}} isVoted={selectedBarmmBoardMember !== undefined && selectedBarmmBoardMember.candidate_id == candidate.candidate_id} />
+                                                    </div>
+                                                )
                                             }
-                                        </div>
-                                    </div>
+                                            </div>
+                                        </AccordionContent>
+                                    </AccordionItem>
                                 )
                             }
                             </>
@@ -1082,7 +1098,7 @@ export default function Page() {
                                 <div className="w-full h-1.5 bg-gradient-to-r from-yellow-500 via-blue-500 to-yellow-500 mb-3 rounded-full"></div>
                                 <p className="text-lg text-center text-gray-600 font-medium">Share your balota on social media!</p>
                                 <p className="text-lg text-center text-gray-500">Balota made with ❤️ by @Towphe</p>
-                                <p className="text-lg text-center text-gray-500">✏️ Ballot template made by @mrxjstr</p>
+                                <p className="text-lg text-center text-gray-500">✏️ Ballot template made by @mrjxtr</p>
                             </div>
                         </div>
                     </div>
