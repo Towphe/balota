@@ -931,7 +931,6 @@ export default function Page() {
                 </Accordion>
                 <div className="w-full mt-6">
                     <Button type="button" onClick={handleExport} className="w-full bg-[#37c443] font-semibold  hover:bg-[#37c443]" color="success">Export</Button>
-                    <p className="text-xs opacity-70">Export feature coming soon</p>
                 </div>
                 <div className="h-full w-screen bg-white absolute top-0 left-0 z-[-10]">
                 </div>
