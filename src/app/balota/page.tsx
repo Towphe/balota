@@ -69,7 +69,7 @@ function CandidatePopup(props: CandiatePopupProps) {
             </DialogTrigger>
             <DialogContent className="w-11/12">
                 <DialogTitle>{details.ballot_name} - #{details.ballot_number}</DialogTitle>
-                {/* <DialogDescription>{}</DialogDescription> */}
+                <p>AI-generated summaries coming back soon.</p>
                 {
                     !isVoted ? <Button onClick={() => onAdd()} className="!rounded-xl !bg-yellow-500 hover:opacity-80 hover:cursor-pointer">Iboto!</Button> :
                     <Button onClick={() => onRemove()} className="!rounded-xl !bg-white !border-red-600 border-2 !text-red-600 hover:opacity-80 hover:cursor-pointer">Remove vote</Button>
@@ -605,7 +605,7 @@ export default function Page() {
     };
 
     return (
-        <div className="h-full flex flex-col items-center justify-start py-6">
+        <div className="h-full flex flex-col items-center justify-start py-6 overflow-x-hidden">
             <div className="w-5/6 md:w-4/5 lg:w-1/2 xl:w-2/5 2xl:w-1/3">
                 <div className="flex justify-between items-center">
                     <h1 className="text-4xl">Generate Ballot</h1>
@@ -696,14 +696,13 @@ export default function Page() {
                     </div>
                 </div>
 
-                {/* defaultValue={["senators", "partylists"]} */}
-                <Accordion type="multiple" >
+                <Accordion type="multiple" defaultValue={["senators", "partylists", "representative", "governor", "vice-governor", "mayor", "vice-mayor", "councilors", "provincial-boardd", "barmm-partylist", "barmm-parliament"]} >
                     {
                         isNationalPositionsLoaded ?
                         (
                             <>
                             <AccordionItem value="senators">
-                                <AccordionTrigger className="text-lg" >Senators</AccordionTrigger>
+                                <AccordionTrigger className="text-lg" >Senators (12)</AccordionTrigger>
                                 <AccordionContent className="w-full">
                                     <div className="w-full relative">
                                         <Input type="text" placeholder="Enter senator name" onChange={(e:ChangeEvent<HTMLInputElement>) => setSenatorSearch(e.target.value)} />
@@ -932,7 +931,7 @@ export default function Page() {
                 <div className="w-full mt-6">
                     <Button type="button" onClick={handleExport} className="w-full bg-[#37c443] font-semibold  hover:bg-[#37c443]" color="success">Export</Button>
                 </div>
-                <div className="h-full w-screen bg-white absolute top-0 left-0 z-[-10]">
+                <div className="h-screen w-screen bg-white absolute top-0 left-0 z-[-10]">
                 </div>
                 
                 {/* generated ballot is hidden within */}
