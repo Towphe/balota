@@ -940,15 +940,15 @@ export default function Page() {
                         style={{
                             fontFamily: 'Arial, sans-serif',
                             width: '1080px',
-                            height: '1920px',
-                            aspectRatio: '9/16',
+                            paddingTop: '24px',
+                            paddingBottom: '24px',
                             background: 'linear-gradient(to bottom, #f0f4ff, #ffffff)',
                             display: 'flex',
                             flexDirection: 'column',
                             justifyContent: 'center'
                         }}
-                        className="border-2 p-6 shadow-lg">
-                        <div className="w-full bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-5 text-white text-center mb-4 mt-8">
+                        className="border-2 px-6 shadow-lg">
+                        <div className="w-full bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-5 text-white text-center mb-4">
                             <h1 className="text-4xl font-bold">My 2025 Balota</h1>
                         </div>
                         <div className="flex items-end justify-between mb-5 border-b-2 border-yellow-500 pb-3">
@@ -958,7 +958,7 @@ export default function Page() {
                             </div>
                             <div className="flex justify-center py-4">
                                 <p className="text-2xl">
-                                    Generate your balota at<br/>
+                                    Generate yours at<br/>
                                     <a href="https://balota.vercel.app" className="underline text-blue-600">https://balota.vercel.app</a>
                                 </p>
                             </div>
@@ -968,26 +968,26 @@ export default function Page() {
                                 <h2 className="text-2xl font-semibold mb-2 text-blue-800">Senators</h2>
                                 <div className="grid grid-cols-2 gap-2.5">
                                     {
-                                        selectedSenators.map(s => (
-                                            <p key={s.candidate_id} className="text-base bg-blue-50 p-3 rounded-md">{s.ballot_number}. {s.ballot_name}</p>
+                                        selectedSenators.sort((a,b) => a.ballot_number - b.ballot_number).map(s => (
+                                            <p key={s.candidate_id} className="text-lg bg-blue-50 p-3 rounded-md">{s.ballot_number}. {s.ballot_name}</p>
                                         ))
                                     }
                                     {
-                                        Array.from({length: 12-selectedSenators.length}, (_,i) => <p key={`s${i}`} className="text-base text-gray-400 bg-gray-50 p-3 rounded-md">Free Slot</p>)
+                                        Array.from({length: 12-selectedSenators.length}, (_,i) => <p key={`s${i}`} className="text-lg text-gray-500 bg-gray-50 p-3 rounded-md">Free Slot</p>)
                                     }
                                 </div>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="bg-white rounded-xl shadow-md p-4">
                                     <h2 className="text-2xl font-semibold mb-2 text-blue-800">Partylists</h2>
-                                    <p className="text-base bg-blue-50 p-3 rounded-md">{selectedPartylist ? `${selectedPartylist.ballot_number}. ${selectedPartylist.ballot_name}` : <span className="text-gray-400">Free Slot</span>}</p>
+                                    <p className="text-lg bg-blue-50 p-3 rounded-md">{selectedPartylist ? `${selectedPartylist.ballot_number}. ${selectedPartylist.ballot_name}` : <span className="text-gray-500">Free Slot</span>}</p>
                                 </div>
                                 {
                                     !isOverseas && (
                                         <>
                                             <div className="bg-white rounded-xl shadow-md p-4">
                                                 <h2 className="text-2xl font-semibold mb-2 text-blue-800">Representative</h2>
-                                                <p className="text-base bg-blue-50 p-3 rounded-md">{selectedRepresentative ? `${selectedRepresentative.ballot_number}. ${selectedRepresentative.ballot_name}` : <span className="text-gray-400">Free Slot</span>}</p>
+                                                <p className="text-lg bg-blue-50 p-3 rounded-md">{selectedRepresentative ? `${selectedRepresentative.ballot_number}. ${selectedRepresentative.ballot_name}` : <span className="text-gray-500">Free Slot</span>}</p>
                                             </div>
                                         </>
                                     )
@@ -1001,11 +1001,11 @@ export default function Page() {
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="bg-white rounded-xl shadow-md p-4">
                                                 <h2 className="text-2xl font-semibold mb-2 text-blue-800">Governor</h2>
-                                                <p className="text-base bg-blue-50 p-3 rounded-md">{selectedGovernor ? `${selectedGovernor.ballot_number}. ${selectedGovernor.ballot_name}` : <span className="text-gray-400">Free Slot</span>}</p>
+                                                <p className="text-lg bg-blue-50 p-3 rounded-md">{selectedGovernor ? `${selectedGovernor.ballot_number}. ${selectedGovernor.ballot_name}` : <span className="text-gray-500">Free Slot</span>}</p>
                                             </div>
                                             <div className="bg-white rounded-xl shadow-md p-4">
                                                 <h2 className="text-2xl font-semibold mb-2 text-blue-800">Vice-Governor</h2>
-                                                <p className="text-base bg-blue-50 p-3 rounded-md">{selectedViceGovernor ? `${selectedViceGovernor.ballot_number}. ${selectedViceGovernor.ballot_name}` : <span className="text-gray-400">Free Slot</span>}</p>
+                                                <p className="text-lg bg-blue-50 p-3 rounded-md">{selectedViceGovernor ? `${selectedViceGovernor.ballot_number}. ${selectedViceGovernor.ballot_name}` : <span className="text-gray-500">Free Slot</span>}</p>
                                             </div>
                                         </div>
                                         )
@@ -1017,12 +1017,12 @@ export default function Page() {
                                                 <div className="grid grid-cols-2 gap-2">
                                                     {
                                                         selectedProvincialBoardMembers.map(s => (
-                                                            <p key={s.candidate_id} className="text-base bg-blue-50 p-3 rounded-md">{s.ballot_number}. {s.ballot_name}</p>
+                                                            <p key={s.candidate_id} className="text-lg bg-blue-50 p-3 rounded-md">{s.ballot_number}. {s.ballot_name}</p>
                                                         ))
                                                     }
                                                     {
                                                         selectedLgu?.max_provincial_board && (
-                                                        Array.from({length: selectedLgu.max_provincial_board-selectedProvincialBoardMembers.length}, (_,i) => <p key={`pb${i}`} className="text-base text-gray-400 bg-gray-50 p-3 rounded-md">Free Slot</p>))
+                                                        Array.from({length: selectedLgu.max_provincial_board-selectedProvincialBoardMembers.length}, (_,i) => <p key={`pb${i}`} className="text-lg text-gray-500 bg-gray-50 p-3 rounded-md">Free Slot</p>))
                                                     }
                                                 </div>
                                             </div>
@@ -1031,11 +1031,11 @@ export default function Page() {
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="bg-white rounded-xl shadow-md p-4">
                                             <h2 className="text-2xl font-semibold mb-2 text-blue-800">Mayor</h2>
-                                            <p className="text-base bg-blue-50 p-3 rounded-md">{selectedMayor ? `${selectedMayor.ballot_number}. ${selectedMayor.ballot_name}` : <span className="text-gray-400">Free Slot</span>}</p>
+                                            <p className="text-lg bg-blue-50 p-3 rounded-md">{selectedMayor ? `${selectedMayor.ballot_number}. ${selectedMayor.ballot_name}` : <span className="text-gray-500">Free Slot</span>}</p>
                                         </div>
                                         <div className="bg-white rounded-xl shadow-md p-4">
                                             <h2 className="text-2xl font-semibold mb-2 text-blue-800">Vice-Mayor</h2>
-                                            <p className="text-base bg-blue-50 p-3 rounded-md">{selectedViceMayor ? `${selectedViceMayor.ballot_number}. ${selectedViceMayor.ballot_name}` : <span className="text-gray-400">Free Slot</span>}</p>
+                                            <p className="text-lg bg-blue-50 p-3 rounded-md">{selectedViceMayor ? `${selectedViceMayor.ballot_number}. ${selectedViceMayor.ballot_name}` : <span className="text-gray-500">Free Slot</span>}</p>
                                         </div>
                                     </div>
                                     <div className="bg-white rounded-xl shadow-md p-4">
@@ -1043,12 +1043,12 @@ export default function Page() {
                                         <div className="grid grid-cols-2 gap-2">
                                             {
                                                 selectedCouncilors.map(s => (
-                                                    <p key={s.candidate_id} className="text-base bg-blue-50 p-3 rounded-md">{s.ballot_number}. {s.ballot_name}</p>
+                                                    <p key={s.candidate_id} className="text-lg bg-blue-50 p-3 rounded-md">{s.ballot_number}. {s.ballot_name}</p>
                                                 ))
                                             }
                                             {
                                                 selectedLgu?.max_lgu_council && (
-                                                Array.from({length: selectedLgu.max_lgu_council-selectedCouncilors.length}, (_,i) => <p key={`sc${i}`} className="text-base text-gray-400 bg-gray-50 p-3 rounded-md">Free Slot</p>))
+                                                Array.from({length: selectedLgu.max_lgu_council-selectedCouncilors.length}, (_,i) => <p key={`sc${i}`} className="text-lg text-gray-500 bg-gray-50 p-3 rounded-md">Free Slot</p>))
                                             }
                                         </div>
                                     </div>
@@ -1062,26 +1062,27 @@ export default function Page() {
                                         <div className="bg-white rounded-xl shadow-md p-4">
                                             <h2 className="text-2xl font-semibold mb-2 text-blue-800">BARMM, Partylist</h2>
                                             {selectedBarmmParty ? 
-                                                <p className="text-base bg-blue-50 p-3 rounded-md">{selectedBarmmParty.ballot_number}. {selectedBarmmParty.ballot_name}</p>
+                                                <p className="text-lg bg-blue-50 p-3 rounded-md">{selectedBarmmParty.ballot_number}. {selectedBarmmParty.ballot_name}</p>
                                                 :
-                                                <p className="text-base text-gray-400 bg-gray-50 p-3 rounded-md">Free Slot</p>
+                                                <p className="text-lg text-gray-500 bg-gray-50 p-3 rounded-md">Free Slot</p>
                                             }
                                         </div>
                                         <div className="bg-white rounded-xl shadow-md p-4">
                                             <h2 className="text-2xl font-semibold mb-2 text-blue-800">BARMM, Parliament Member</h2>
                                             {selectedBarmmBoardMember ? 
-                                                <p className="text-base bg-blue-50 p-3 rounded-md">{selectedBarmmBoardMember.ballot_number}. {selectedBarmmBoardMember.ballot_name}</p>
+                                                <p className="text-lg bg-blue-50 p-3 rounded-md">{selectedBarmmBoardMember.ballot_number}. {selectedBarmmBoardMember.ballot_name}</p>
                                                 :
-                                                <p className="text-base text-gray-400 bg-gray-50 p-3 rounded-md">Free Slot</p>
+                                                <p className="text-lg text-gray-500 bg-gray-50 p-3 rounded-md">Free Slot</p>
                                             }
                                         </div>
                                     </div>
                                 )
                             }
-                            <div className="mt-auto pt-4 pb-2 mb-8">
+                            <div className="mt-auto pt-4 pb-2">
                                 <div className="w-full h-1.5 bg-gradient-to-r from-yellow-500 via-blue-500 to-yellow-500 mb-3 rounded-full"></div>
-                                <p className="text-base text-center text-gray-600 font-medium">Share your balota on social media!</p>
-                                <p className="text-base text-center text-gray-500">Balota made with ❤️ by @Towphe</p>
+                                <p className="text-lg text-center text-gray-600 font-medium">Share your balota on social media!</p>
+                                <p className="text-lg text-center text-gray-500">Balota made with ❤️ by @Towphe</p>
+                                <p className="text-lg text-center text-gray-500">✏️ Ballot template made by @mrxjstr</p>
                             </div>
                         </div>
                     </div>
